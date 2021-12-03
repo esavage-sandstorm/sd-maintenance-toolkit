@@ -41,20 +41,32 @@ export class TestStatusComponent extends TestComponent {
   }
   testGoogleAnalyticsReporting() {
     const data = {url: 'https://www.crowncork.com'};
-    this.api.post('site/google-analytics', data).then( (result: any) => {
+    return this.api.post('site/google-analytics', data).then( (result: any) => {
       this.googleAnalyticsReporting = result;
     });
   }
   testProdSSLExp() {
     const data = {url: 'crowncork.com'};
-    this.api.post('site/ssl-expiration', data).then( (result: any) => {
+    return this.api.post('site/ssl-expiration', data).then( (result: any) => {
       this.prodSSLExp = result;
     });
   }
   testOpCacheEnabled() {
     const data = {module_name: 'Zend OPcache'};
-    this.api.post('server/php-module', data).then( (result: any) => {
+    return this.api.post('server/php-module', data).then( (result: any) => {
       this.opCacheEnabled = result;
+    });
+  }
+
+  testAll() {
+    const self = this;
+    self.testing = true;
+    self.testGoogleAnalyticsReporting().then((result) => {
+      self.testProdSSLExp().then((result) => {
+        self.testOpCacheEnabled().then((result) => {
+          self.testing = false;
+        });
+      });
     });
   }
 }

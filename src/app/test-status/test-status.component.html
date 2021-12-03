@@ -1,5 +1,7 @@
 <h2>Status</h2>
-<table>
+<button (click)="testAll()">Test All</button>
+  <p *ngIf="testing">Testing...</p>
+<table [ngClass]="{'testing': testing}">
   <tbody>
     <tr test-row label="Cron Running" [(value)]="cronLastRun" (test)="testCronLastRun()"></tr>
     <tr test-row label="File System Permissions" [(value)]="fileSystemPermissions" (test)="testFileSystemPermissions()"></tr>

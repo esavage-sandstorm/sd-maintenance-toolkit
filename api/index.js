@@ -72,5 +72,45 @@ api.post('/api/site/google-analytics', (req, res) => {
   sdNightmare.testGoogleAnalyticsRunning(url, cb);
 });
 
+api.post('/api/site/test-form', (req, res) => {
+  const data = {
+    url: 'https://www.crowncork.com/contact-us/contact-form/?cid=13453',
+    formId: 'webform-client-form-10711',
+    fields: [
+    {
+      type: 'text',
+      selector: '#edit-submitted-name',
+      value: 'Eric Savage'
+    },
+    {
+      type: 'text',
+      selector: '#edit-submitted-email',
+      value: 'esavage@sandstormdesign.com'
+    },
+    {
+      type: 'click',
+      selector: '#edit-submitted-are-you-a-current-crown-customer-2 + .radio',
+    },
+    {
+      type: 'text',
+      selector: '#edit-submitted-subject',
+      value: 'Test for maintenance'
+    },
+    {
+      type: 'text',
+      selector: '#edit-submitted-message',
+      value: 'This is a test as part of Sandstorm Design\'s website maintenance. Please reply to confirm receipt of this message.'
+    },
+    ],
+    hasCaptcha: true,
+    submitSelector: '.form-submit'
+  };
+  const cb = function(data){
+    res.json(data);
+  }
+
+  sdNightmare.formSubmit(data, cb);
+});
+
 api.listen(port);
 console.log(`API is listening at localhost:${port}`);
