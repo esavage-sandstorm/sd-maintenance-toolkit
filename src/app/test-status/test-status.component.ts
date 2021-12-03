@@ -14,9 +14,7 @@ export class TestStatusComponent extends TestComponent {
   dbBackupRunning: string = '';
   siteUpdated: string = '';
   googleAnalyticsReporting: string = '';
-  testingSSL: boolean = false;
   prodSSLExp: string = '';
-  testingOPcache: boolean = false;
   opCacheEnabled: string = '';
 
 
@@ -42,22 +40,21 @@ export class TestStatusComponent extends TestComponent {
     this.siteUpdated = 'test';
   }
   testGoogleAnalyticsReporting() {
-    this.googleAnalyticsReporting = 'test';
+    const data = {url: 'https://www.crowncork.com'};
+    this.api.post('site/google-analytics', data).then( (result: any) => {
+      this.googleAnalyticsReporting = result;
+    });
   }
   testProdSSLExp() {
     const data = {url: 'crowncork.com'};
-    this.testingSSL = true;
-    this.api.post('server/ssl-expiration', data).then( (result: any) => {
+    this.api.post('site/ssl-expiration', data).then( (result: any) => {
       this.prodSSLExp = result;
-      this.testingSSL = false;
     });
   }
   testOpCacheEnabled() {
-    this.testingOPcache = true;
     const data = {module_name: 'Zend OPcache'};
     this.api.post('server/php-module', data).then( (result: any) => {
       this.opCacheEnabled = result;
-      this.testingOPcache = false;
     });
   }
 }

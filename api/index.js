@@ -49,15 +49,28 @@ api.post('/api/server/php-module', (req, res) => {
   sdSSH.findPhpModule(moduleName, cb);
 });
 
-api.post('/api/server/ssl-expiration', (req, res) => {
+api.post('/api/site/ssl-expiration', (req, res) => {
   const url = req.body.url;
   const cb = function(data){
     const exp = new Date(data.replace('notAfter=', ''));
     res.json(exp.toString());
   }
   sdSSH.checkSSLExpiration(url, cb);
-})
+});
 
+api.post('/api/site/google-analytics', (req, res) => {
+  const url = req.body.url;
+
+  const cb = function(data){
+    if (data){
+      res.json(data);
+    } else {
+      res.json("GA not found.");
+    }
+  }
+
+  sdNightmare.testGoogleAnalyticsRunning(url, cb);
+});
 
 api.listen(port);
 console.log(`API is listening at localhost:${port}`);
