@@ -1,11 +1,15 @@
 'use strict';
 var Client = require('ssh2').Client;
 
-const sdSSHModule = function(){
+const sdSSHModule = function(config) {
   const mod = this;
+  mod.config = config;
+  mod.debug = true;
 
-  mod.command = (config, cmd, cb) => {
-    console.log(config);
+  mod.command = (cmd, cb) => {
+    if (mod.debug){
+      console.log(cmd);
+    }
     var conn = new Client();
     conn.on('ready', function() {
       console.log('Client :: ready');
@@ -23,15 +27,25 @@ const sdSSHModule = function(){
         });
       });
     }).connect({
-      host: config.hostAddr,
-      port: config.port,
-      username: config.username,
-      privateKey: require('fs').readFileSync(config.keyFile)
+      host: mod.config.hostAddr,
+      port: mod.config.port,
+      username: mod.config.username,
+      privateKey: require('fs').readFileSync(mod.config.keyFile)
     });
   }
 
-  mod.test = (config, cb) => {
-    mod.command(config, 'uptime', cb);
+  mod.test = (cb) => {
+    mod.command('uptime', cb);
+  }
+
+  mod.findPhpModule = (name, cb) => {
+    const cmd = `if php -m | grep -q '${name}'; then echo '${name} found'; else echo '${name} not found'; fi`;
+    mod.command(cmd, cb);
+  }
+
+  mod.checkSSLExpiration = (url, cb) => {
+    const cmd = `openssl s_client -servername ${url} -connect ${url}:443 2>/dev/null | openssl x509 -noout -dates | grep notAfter`;
+    mod.command(cmd, cb);
   }
 }
 

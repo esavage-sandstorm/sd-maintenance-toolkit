@@ -1,0 +1,25 @@
+$inch: 100px;
+$outside: .25 * $inch;
+.report {
+  background: #fff;
+  box-shadow: 0 0 2px #000;
+  width: 80%;
+  margin: auto;
+  max-width: 8.5 * $inch;
+}
+.report-header {
+  padding: $outside $outside 0;
+}
+
+.report-body {
+  padding: $outside;
+}
+
+.report-footer {
+  padding: 0 $outside $outside;
+}
+
+.sd-logo {
+  max-height: .28 * $inch;
+  float: right;
+}

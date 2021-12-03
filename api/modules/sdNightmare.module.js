@@ -6,7 +6,7 @@ const sdNightmareModule = function(){
   const mod = this;
 
   mod.test = (cb) => {
-    const nightmare = Nightmare({ show: true })
+    const nightmare = Nightmare({ show: false })
 
     nightmare
       .goto('https://duckduckgo.com')

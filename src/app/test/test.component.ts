@@ -8,13 +8,11 @@ import { ApiService } from '../api.service';
 })
 export class TestComponent implements OnInit {
   data: any = '';
+  testing: boolean = false;
 
-  constructor(private api: ApiService) { }
+  constructor(protected api: ApiService) { }
 
   ngOnInit(): void {
-    this.api.get('nightmare-test').then(response => {
-      this.data = response;
-    });
   }
 
 }

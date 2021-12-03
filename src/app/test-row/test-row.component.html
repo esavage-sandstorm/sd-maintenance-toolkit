@@ -1,0 +1,4 @@
+
+<td width="600">{{label}}<span class="note" *ngIf="note">{{note}}</span></td>
+<td width="1400"><textarea class="invisible" placeholder=" " [(ngModel)]="value" (ngModelChange)="update()"></textarea></td>
+<td><button *ngIf="!noTest" (click)="clickTest()">test</button></td>
