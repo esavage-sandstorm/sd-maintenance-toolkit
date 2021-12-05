@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const port = 4619;
 
-
 const api = express();
 api.use(bodyParser.urlencoded({ extended: true}));
 api.use(bodyParser.json());
@@ -14,10 +13,11 @@ api.use(bodyParser.json());
     keyFile: '/Users/ariksavage/.ssh/id_rsa',
   }
 
-const sdNightmareModule = require('./modules/sdNightmare.module.js');
-const sdNightmare = new sdNightmareModule();
 const sdSSHModule = require('./modules/sdSSH.module.js');
 const sdSSH = new sdSSHModule(crownSshConfig);
+
+const drupal7Module = require('./modules/drupal7.module.js');
+const drupal7 = new drupal7Module();
 
 api.get('/api/hello', (req, res) => {
   res.json('hello');
@@ -110,6 +110,16 @@ api.post('/api/site/test-form', (req, res) => {
   }
 
   sdNightmare.formSubmit(data, cb);
+});
+
+api.post('/api/site/drupal7-maintenance', (req, res) => {
+  const url = req.body.url;
+  const username = req.body.username;
+  const password = req.body.password;
+  const cb = function(data){
+    res.json(data);
+  }
+  drupal7.maintenance(url, username, password, cb);
 });
 
 api.listen(port);
