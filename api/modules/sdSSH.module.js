@@ -47,6 +47,56 @@ const sdSSHModule = function(config) {
     const cmd = `openssl s_client -servername ${url} -connect ${url}:443 2>/dev/null | openssl x509 -noout -dates | grep notAfter`;
     mod.command(cmd, cb);
   }
+
+  mod.textToKey = (text) => {
+
+  }
+
+  mod.parseShellTable = (data) => {
+    const rows = data.split("\n");
+    const labels = rows.splice(0, 1)[0].split(/\s{2,}|\s(?=[A-Z])/);
+    console.log('labels', labels);
+    let items = [];
+    rows.forEach((row) => {
+      const columns = row.split(/\s+/);
+      if (columns.length == labels.length + 1){
+        labels.unshift('name');
+      }
+      const item = {};
+      columns.forEach((col, i) => {
+        var key = labels[i].trim().toLowerCase().replace('%', ' percent').replace(/[^a-z]+/g, '_').trim('_');
+        item[key] = col.trim();
+      });
+      items.push(item);
+    });
+    return items;
+  }
+
+  mod.serverMemory = (cb) => {
+    const cmd = `free -mh`;
+    const parseMem = (data) => {
+      const memory = mod.parseShellTable(data);
+      cb(memory);
+    };
+
+    mod.command(cmd, parseMem);
+  }
+
+  mod.serverDiskSpace = (cb) => {
+    const cmd = `df -h`;
+
+    const parseSpace = (data) => {
+      const space = mod.parseShellTable(data);
+      cb(space);
+    }
+
+    mod.command(cmd, parseSpace);
+  }
+
+  mod.phpVersion = (cb) => {
+    const cmd = `php -v | grep '(cli) (built:' | cut -d' ' -f2`;
+    mod.command(cmd, cb);
+  }
 }
 
 module.exports = sdSSHModule;

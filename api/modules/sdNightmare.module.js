@@ -222,108 +222,56 @@ const sdNightmareModule = function(){
     };
   };
 
-  // mod.drupal7Login = (url, username, password) => {
-  //   return function(nightmare) {
-  //     return nightmare
-  //     .goto(url + '/user/login')
-  //     .checkCookieConsent()
-  //     .wait('#edit-name')
-  //     .type('#edit-name', username)
-  //     .wait('#edit-pass')
-  //     .type('#edit-pass', password)
-  //     .use(mod.promptCaptcha())
-  //     .wait('#edit-submit')
-  //     .click('#edit-submit')
-  //     .wait('body.logged-in')
-  //   };
-  // };
+  mod.googlePageSpeed = (testUrl, cb) =>{
+    const url = 'https://developers.google.com/speed/pagespeed/insights/?url='+encodeURIComponent(testUrl);
+    const nightmare = mod.Nightmare({ show: true, executionTimeout: 100000, waitTimeout: 100000});
+    nightmare
+    .goto(url)
+    .wait(function() {
+      var attempt = 0;
+      function waitForAnalysis() {
+        if (window.__LIGHTHOUSE_JSON__ && window.__LIGHTHOUSE_JSON__.fetchTime) {
+            return true;
+        }
+        else {
+          attempt++;
 
-  // mod.drupal7Status = (url, data = {}) => {
-  //   return function(nightmare) {
-  //     return nightmare
-  //     .goto(url + '/admin/reports/status')
-  //     .wait('.system-status-report')
-  //     .evaluate((data) => {
-  //       data.status = {};
-  //       Array.from(document.querySelectorAll('.system-status-report tr')).forEach(row => {
-  //         const titleTd = row.querySelectorAll('.status-title');
-  //         let label = '';
-  //         if (titleTd && titleTd[0]){
-  //           label = titleTd[0].innerText.trim();
-  //         }
-  //         label = label.replace(' ','');
-  //         label = label.replace(/[^0-9a-zA-Z]/gi, '');
-  //         const valueTd = row.querySelectorAll('.status-value');
-  //         let value = '';
-  //         if (valueTd && valueTd[0]){
-  //           value = valueTd[0].innerText.trim();
-  //         }
-  //         if(label){
-  //           data.status[label] = value;
-  //         }
-  //       });
-  //       return data
-  //     }, data)
-  //   };
-  // };
+          if ( attempt < 5000 ) {
+            setTimeout(waitForAnalysis, 1000);
+          }
+          else {
+            return true;
+          }
+        }
+      }
+      return waitForAnalysis();
+    })
+    .evaluate(() => window.__LIGHTHOUSE_JSON__ )
+    .end()
+    .then(cb)
+    .catch(error => {
+      console.error('Search failed:', error)
+    });
+  }
 
-  // mod.drupal7ModuleUpdates = (url, data = {}) => {
-  //   return function(nightmare) {
-  //     return nightmare
-  //     .goto(url + '/admin/reports/updates')
-  //     .wait('#edit-module-filter-show-security')
-  //     .click('#edit-module-filter-show-security')
-  //     // .wait('#edit-module-filter-show-updates')
-  //     // .click('#edit-module-filter-show-updates')
-  //     .wait('table.update .js-hide')
-  //     .evaluate((data) => {
-  //       data.modules = [];
-  //       Array.from(document.querySelectorAll('table.update tr:not(.js-hide)')).forEach(row => {
-  //         if(row.querySelector('.project')){
-  //           let title = '';
-  //           let version = '';
-  //           const project = row.querySelector('.project').innerText;
-  //           if (row.querySelector('.project a')){
-  //             title = row.querySelector('.project a').innerText;
-  //             version = project.replace(title, '');
-  //           } else {
-  //             title = project.split(' ')[0];
-  //             version = project.split(' ')[0];
-  //           }
-  //           console.log(title, version);
-  //           if (row.querySelector('.version-recommended')) {
-  //             const recommended = row.querySelector('.version-recommended .version-details').innerText;
-  //             data.modules.push({
-  //               title: title,
-  //               current: version,
-  //               recommended: recommended
-  //             });
-  //           }
-  //         }
-  //       });
-  //       return data;
-  //     }, data)
-  //   };
-  // };
-
-  // mod.drupal7Maintenance = (url, username, password, cb) => {
-  //   const nightmare = Nightmare({ show: true, executionTimeout: 100000, waitTimeout: 100000})
-  //   let data = {};
-
-  //   nightmare
-  //   .use(mod.drupal7Login(url, username, password))
-  //   .use(mod.drupal7Status(url))
-  //   .then(data => {
-  //     // get modules
-  //     nightmare
-  //     .use(mod.drupal7ModuleUpdates(url, data))
-  //     .end()
-  //     .then(cb)
-  //     .catch(error => {
-  //       console.error(error)
-  //     });
-  //   });
-  // }
+  mod.getLatestPHPversion = (v, cb) => {
+    const nightmare = mod.Nightmare();
+    nightmare
+    .goto('https://php.net')
+    .wait('.download ul')
+    .evaluate((current) => {
+      var c = current.split('.').slice(0, 2).join('.');
+      var latestVersions = Array.from(document.querySelectorAll('.download .download-link')).map((td) => td.innerText);
+      return latestVersions.filter(v => {
+        return v.indexOf(c) == 0;
+      })[0];
+    }, v)
+    .end()
+    .then(cb)
+    .catch(error => {
+      console.error('Search failed:', error)
+    });
+  }
 }
 
 module.exports = sdNightmareModule;

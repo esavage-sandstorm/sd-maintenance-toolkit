@@ -59,38 +59,69 @@ const drupal7Module = function(){
       .goto(url + '/admin/reports/updates')
       .wait('#edit-module-filter-show-security')
       .click('#edit-module-filter-show-security')
-      // .wait('#edit-module-filter-show-updates')
-      // .click('#edit-module-filter-show-updates')
-      .wait('table.update .js-hide')
+      .wait(3000) // wait for things to be hidden
       .evaluate((data) => {
         data.modules = [];
-        Array.from(document.querySelectorAll('table.update tr:not(.js-hide)')).forEach(row => {
-          if(row.querySelector('.project')){
-            let title = '';
-            let version = '';
-            const project = row.querySelector('.project').innerText;
-            if (row.querySelector('.project a')){
-              title = row.querySelector('.project a').innerText;
-              version = project.replace(title, '');
-            } else {
-              title = project.split(' ')[0];
-              version = project.split(' ')[0];
+        if(!document.querySelector('.module-filter-no-results')){
+          Array.from(document.querySelectorAll('table.update tr:not(.js-hide)')).forEach(row => {
+            if(row.querySelector('.project')){
+              let title = '';
+              let version = '';
+              const project = row.querySelector('.project').innerText;
+              if (row.querySelector('.project a')){
+                title = row.querySelector('.project a').innerText;
+                version = project.replace(title, '');
+              } else {
+                title = project.split(' ')[0];
+                version = project.split(' ')[0];
+              }
+              if (row.querySelector('.version-recommended')) {
+                const recommended = row.querySelector('.version-recommended .version-details').innerText;
+                data.modules.push({
+                  title: title,
+                  current: version,
+                  recommended: recommended
+                });
+              }
             }
-            console.log(title, version);
-            if (row.querySelector('.version-recommended')) {
-              const recommended = row.querySelector('.version-recommended .version-details').innerText;
-              data.modules.push({
-                title: title,
-                current: version,
-                recommended: recommended
-              });
-            }
-          }
-        });
+          });
+        }
         return data;
       }, data)
     };
   };
+
+  // Nightmare get a list of PHP errors
+  mod.PhpErrors = (url, data = {}) => {
+    return function(nightmare) {
+      return nightmare
+      .goto(url + '/admin/reports/dblog')
+      .wait('#edit-filters .fieldset-legend')
+      .click('#edit-filters .fieldset-legend')
+      .wait(1000)
+      .wait('#edit-type [value="php"]') // type = PHP
+      .select('#edit-type', 'php')
+      .wait('#edit-severity [value="3"]') // severity = Error
+      .select('#edit-severity', '3')
+      .click('#dblog-filter-form .form-submit')
+      // .wait('#admin-dblog tbody tr')
+      .wait(3000)
+      .evaluate((data, url) => {
+        data.errors = [];
+        if (!document.querySelector('#admin-dblog .empty.message')){
+          Array.from(document.querySelectorAll('#admin-dblog tbody tr')).forEach( row => {
+            const errorMsg = {};
+            errorMsg.date = row.querySelector('td:nth-child(3)').innerText;
+            errorMsg.message = row.querySelector('td:nth-child(4)').innerText;
+            errorMsg.link = url + row.querySelector('td:nth-child(4) a').getAttribute('href');
+            errorMsg.user = row.querySelector('td:nth-child(5)').innerText;
+            data.errors.push(errorMsg);
+          });
+        }
+        return data;
+      }, data, url)
+    };
+  }
 
   mod.maintenance = (url, username, password, cb) => {
     const nightmare = sdNightmare.Nightmare({ show: true, executionTimeout: 100000, waitTimeout: 100000})
@@ -103,10 +134,15 @@ const drupal7Module = function(){
       // get modules
       nightmare
       .use(mod.moduleUpdates(url, data))
-      .end()
-      .then(cb)
-      .catch(error => {
-        console.error(error)
+      .then(data => {
+        // get errors
+        nightmare
+        .use(mod.PhpErrors(url, data))
+        .end()
+        .then(cb)
+        .catch(error => {
+          console.error(error)
+        });
       });
     });
   }

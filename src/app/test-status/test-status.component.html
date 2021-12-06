@@ -1,18 +1,19 @@
 <h2>Status</h2>
 <button (click)="testAll()">Test All</button>
+<button (click)="testdrupal7Status()">Test CMS</button>
   <p *ngIf="testing">Testing...</p>
-<table [ngClass]="{'testing': testing}">
+<table [ngClass]="{'testing': testing}" *ngIf="status">
   <tbody>
-    <tr test-row label="Cron Running" [(value)]="cronLastRun" (test)="testCronLastRun()"></tr>
-    <tr test-row label="File System Permissions" [(value)]="fileSystemPermissions" (test)="testFileSystemPermissions()"></tr>
-    <tr test-row label="Configuration File Protected" [(value)]="configFileProtected" (test)="testConfigFileProtected()"></tr>
-    <tr test-row label="Access to update.php" [(value)]="accesstoUpdatePhp" (test)="testAccesstoUpdatePhp()"></tr>
-    <tr test-row label="Forms Submissions Tested" [(value)]="formSubmissionsTested" (test)="testFormSubmissionsTested()"></tr>
-    <tr test-row label="DB Backup Running" [(value)]="dbBackupRunning" (test)="testDbBackupRunning()"></tr>
-    <tr test-row label="Dev Site Updated" note="Do a manual backup of the dev sites database before overwriting it." [(value)]="siteUpdated" [noTest]="true"></tr>
-    <tr test-row label="Google Analytics Reporting" [(value)]="googleAnalyticsReporting" (test)="testGoogleAnalyticsReporting()"></tr>
-    <tr test-row label="Prod SSL Certificate Expiration Date" [(value)]="prodSSLExp" (test)="testProdSSLExp()"></tr>
-    <tr test-row label="PHP opcache enabled on Prod" [(value)]="opCacheEnabled" (test)="testOpCacheEnabled()"></tr>
+    <tr test-row label="Cron Running" [(value)]="status.cronLastRun" [noTest]="true"></tr>
+    <tr test-row label="File System Permissions" [(value)]="status.fileSystemPermissions" [noTest]="true"></tr>
+    <tr test-row label="Configuration File Protected" [(value)]="status.configFileProtected" [noTest]="true"></tr>
+    <tr test-row label="Access to update.php" [(value)]="status.accesstoUpdatePhp" [noTest]="true"></tr>
+    <tr test-row label="Forms Submissions Tested" [(value)]="status.formSubmissionsTested" (test)="testFormSubmissionsTested()"><td>Send: <input [(ngModel)]="submitForm" type="checkbox"></td></tr>
+    <tr test-row label="DB Backup Running" [(value)]="status.dbBackupRunning" [noTest]="true"></tr>
+    <tr test-row label="Dev Site Updated" note="Do a manual backup of the dev sites database before overwriting it." [(value)]="status.siteUpdated" [noTest]="true"></tr>
+    <tr test-row label="Google Analytics Reporting" [(value)]="status.googleAnalyticsReporting" (test)="testGoogleAnalyticsReporting()"></tr>
+    <tr test-row label="Prod SSL Certificate Expiration Date" [(value)]="status.prodSSLExp" (test)="testProdSSLExp()"></tr>
+    <tr test-row label="PHP opcache enabled on Prod" [(value)]="status.opCacheEnabled" (test)="testOpCacheEnabled()"></tr>
   </tbody>
 </table>
 

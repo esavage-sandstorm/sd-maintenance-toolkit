@@ -16,12 +16,17 @@ api.use(bodyParser.json());
 const sdSSHModule = require('./modules/sdSSH.module.js');
 const sdSSH = new sdSSHModule(crownSshConfig);
 
+const sdNightmareModule = require('./modules/sdNightmare.module.js');
+const sdNightmare = new sdNightmareModule();
+
 const drupal7Module = require('./modules/drupal7.module.js');
 const drupal7 = new drupal7Module();
 
 api.get('/api/hello', (req, res) => {
   res.json('hello');
 });
+
+
 
 // get data via the front end
 api.get('/api/nightmare-test', (req, res) => {
@@ -47,6 +52,37 @@ api.post('/api/server/php-module', (req, res) => {
     res.json(data);
   }
   sdSSH.findPhpModule(moduleName, cb);
+});
+
+api.post('/api/server/memory', (req, res) => {
+  const cb = function(data){
+    res.json(data);
+  }
+  sdSSH.serverMemory(cb);
+});
+
+api.post('/api/server/disk', (req, res) => {
+  const cb = function(data){
+    res.json(data);
+  }
+  sdSSH.serverDiskSpace(cb);
+});
+
+api.post('/api/server/php-version', (req, res) => {
+  const php = {
+    current: null,
+    latest: null
+  }
+
+  const latestV = (v) => {
+    php.latest = v;
+    res.json(php);
+  }
+  const currentV = (v) => {
+    php.current = v;
+    sdNightmare.getLatestPHPversion(v, latestV);
+  }
+  sdSSH.phpVersion(currentV);
 });
 
 api.post('/api/site/ssl-expiration', (req, res) => {
@@ -120,6 +156,14 @@ api.post('/api/site/drupal7-maintenance', (req, res) => {
     res.json(data);
   }
   drupal7.maintenance(url, username, password, cb);
+});
+
+api.post('/api/site/page-speed', (req, res) => {
+  const url = req.body.url;
+  const cb = function(data){
+    res.json(data);
+  }
+  sdNightmare.googlePageSpeed(url, cb);
 });
 
 api.listen(port);

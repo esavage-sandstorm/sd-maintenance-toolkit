@@ -1,4 +1,5 @@
 
 <td width="600"><span class="label">{{label}}<span class="note" *ngIf="note">{{note}}</span></span></td>
 <td width="1400"><textarea class="invisible" placeholder=" " [(ngModel)]="value" (ngModelChange)="update()"></textarea></td>
-<td><button *ngIf="!noTest" (click)="clickTest()">test</button></td>
+<td><button *ngIf="!noTest && value !== 'testing...'" (click)="clickTest()" >{{value == 'TBD' ? 'test' : 're-test'}}</button></td>
+<ng-content select="td"></ng-content>
