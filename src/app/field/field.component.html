@@ -1,0 +1,4 @@
+<div class="field-wrapper">
+  <label [for]="id">{{label}}</label>
+  <input [attr.placeholder]="placeholder || label" [attr.type]="type" [(ngModel)]="model" (ngModelChange)="update()" [attr.id]="id"/>
+</div>

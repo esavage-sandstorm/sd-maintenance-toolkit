@@ -10,6 +10,8 @@ import { ReportComponent } from './report/report.component';
 import { ReportStatusComponent } from './report-status/report-status.component';
 import { TestStatusComponent } from './test-status/test-status.component';
 import { TestRowComponent } from './test-row/test-row.component';
+import { ClientsComponent } from './clients/clients.component';
+import { FieldComponent } from './field/field.component';
 
 
 @NgModule({
@@ -19,7 +21,9 @@ import { TestRowComponent } from './test-row/test-row.component';
     ReportComponent,
     ReportStatusComponent,
     TestStatusComponent,
-    TestRowComponent
+    TestRowComponent,
+    ClientsComponent,
+    FieldComponent
   ],
   imports: [
     BrowserModule,
