@@ -24,4 +24,13 @@ export class AppComponent {
       self.data = data;
     });
   }
+
+  year() {
+    var d = new Date();
+    return d.getFullYear();
+  }
+
+  v() {
+    return 'v1.0.0'
+  }
 }

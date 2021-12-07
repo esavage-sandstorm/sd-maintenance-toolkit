@@ -1,2 +1,11 @@
-<h1>Sandstorm Design Maintenance Toolkit</h1>
-<router-outlet></router-outlet>
+<header>
+  <h1>Sandstorm Design Maintenance Toolkit</h1>
+  <img class="logo" src="/assets/images/sandstorm-logo.svg">
+</header>
+<main>
+  <router-outlet></router-outlet>
+</main>
+<footer>
+  <span class="app-version">SD Maintenance Toolkit {{v()}}</span>
+  <span class="copyright">&copy; Sandstorm Design {{year()}}</span>
+</footer>

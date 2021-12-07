@@ -22,6 +22,17 @@ const sdClientModule = function(){
     });
     cb(client);
   }
+
+  mod.getClients = (cb) => {
+    const clients = [];
+    clientFiles = fs.readdirSync(dir, { withFileTypes: true });
+    clientFiles.forEach(file => {
+      const data = fs.readFileSync(dir + '/'+file, {encoding:'utf8', flag:'r'});
+      const client = YAML.parse(data);
+      clients.push(client);
+    });
+    cb(clients);
+  }
 }
 
 module.exports = sdClientModule;

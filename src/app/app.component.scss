@@ -1,0 +1,50 @@
+$space: 24px;
+$half-space: $space * .5;
+
+:host {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  // position: absolute;
+  // top: 0;
+  // left: 0;
+  background: #fff;
+}
+header {
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: $space $space $half-space;
+  background: #014f9c;
+  color: #fff;
+
+  .logo {
+    flex: 0 1 auto;
+    width: 300px;
+  }
+
+  h1 {
+    flex: 1 0 auto;
+    margin: 0;
+    font-weight: lighter;
+    font-family: sans-serif;
+  }
+}
+main {
+  flex: 1 0 auto;
+  padding: $half-space $space 0;
+  overflow: auto;
+}
+
+footer {
+  flex: 0 1 auto;
+  padding: $space;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 2px solid #919F23;
+  span {
+    margin-left: 1em;
+  }
+}

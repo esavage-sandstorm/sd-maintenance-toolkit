@@ -19,7 +19,7 @@ const sdSSH = new sdSSHModule(crownSshConfig);
 const sdNightmareModule = require('./modules/sdNightmare.module.js');
 const sdNightmare = new sdNightmareModule();
 
-const sdClientModule = require('./modules/sdclient.module.js');
+const sdClientModule = require('./modules/sdClient.module.js');
 const sdClient = new sdClientModule();
 
 const drupal7Module = require('./modules/drupal7.module.js');
@@ -169,6 +169,12 @@ api.post('/api/site/page-speed', (req, res) => {
   sdNightmare.googlePageSpeed(url, cb);
 });
 
+api.post('/api/client/all', (req, res) => {
+  const cb = function(data){
+    res.json(data);
+  }
+  sdClient.getClients(cb);
+});
 api.post('/api/client/save', (req, res) => {
   const client = req.body.client;
   const cb = function(data){
