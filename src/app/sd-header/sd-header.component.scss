@@ -1,0 +1,47 @@
+:host {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  background: var(--sdBlue);
+  color: #fff;
+  padding-right: 20px;
+  padding-bottom: 20px;
+
+  .logo {
+    flex: 0 1 auto;
+    height: 32px;
+  }
+
+  .titles {
+    flex: 1 0 auto;
+    * {
+      margin: 0;
+      font-weight: lighter;
+      font-family: sans-serif;
+    }
+  }
+
+  nav {
+    display: flex;
+    position: absolute;
+    top: 100%;
+    width: 100%;
+    flex: 1 0 100%;
+    justify-content: flex-start;
+
+    a {
+      background: var(--sdGreen);
+      color: #fff;
+      padding: .2em 1em;
+      text-decoration: none;
+      margin:0 1em 1em;
+      transition: background .2s;
+
+      &:hover,
+      &.current {
+        background: var(--sdBlue);
+      }
+    }
+  }
+}

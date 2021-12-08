@@ -1,0 +1,11 @@
+.client {
+  list-style-type: none;
+  margin: 0 0 1em;
+  padding: .2em 1em;
+
+
+  &.active {
+    background: var(--sdGreen);
+    color: #fff;
+  }
+}

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
 import { DataService } from '../data.service';
+import { ClientService } from '../client.service';
 
 @Component({
   selector: 'test',
@@ -10,13 +11,18 @@ import { DataService } from '../data.service';
 export class TestComponent implements OnInit {
   data: any = {};
   testing: boolean = false;
+  client: any = {};
+  clientSubscription: any = {};
 
-  constructor(protected api: ApiService, protected dataService: DataService) { }
+  constructor(protected api: ApiService, protected dataService: DataService, protected clientService: ClientService) { }
 
   ngOnInit(): void {
     this.data = this.dataService.data().subscribe((data: any) => {
       this.data = data;
       console.log('subscribe', data);
+    });
+    this.clientService.data().subscribe((client: any) => {
+      this.client = client;
     });
   }
 

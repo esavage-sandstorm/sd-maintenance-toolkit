@@ -1,6 +1,7 @@
 'use strict';
 const fs = require('fs');
 const YAML = require('json-to-pretty-yaml');
+const jsYAML = require('js-yaml');
 
 const sdClientModule = function(){
   const mod = this;
@@ -12,7 +13,7 @@ const sdClientModule = function(){
     }
     const data = YAML.stringify(client);
     console.log(data);
-    const outputFile = dir + '/' + client.name + '.yaml';
+    const outputFile = dir + '/' + client.name.toLowerCase().replace(/[\.\,]/,'').replace(/[^a-z0-9-]+/,'_') + '.yaml';
     fs.writeFile(outputFile, data, err => {
       if (err) {
         console.error(err)
@@ -25,10 +26,11 @@ const sdClientModule = function(){
 
   mod.getClients = (cb) => {
     const clients = [];
-    clientFiles = fs.readdirSync(dir, { withFileTypes: true });
+    const clientFiles = fs.readdirSync(dir, { withFileTypes: true });
+    // cb(clientFiles);
     clientFiles.forEach(file => {
-      const data = fs.readFileSync(dir + '/'+file, {encoding:'utf8', flag:'r'});
-      const client = YAML.parse(data);
+      const data = fs.readFileSync(dir + '/'+file.name, {encoding:'utf8', flag:'r'});
+      const client = jsYAML.load(data);
       clients.push(client);
     });
     cb(clients);

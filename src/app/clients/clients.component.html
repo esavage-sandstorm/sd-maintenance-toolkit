@@ -1,28 +1,29 @@
 <h2>Clients</h2>
 <ul>
-  <li>Client list</li>
+  <li class="client" [ngClass]="{'active': client == activeClient}" *ngFor="let client of clients" (click)="selectClient(client)">{{client.name}}</li>
+  <li class="client new" (click)="newClient()">New</li>
 </ul>
 
 <h3>Edit Client</h3>
-<button (click)="saveClient()">Save</button>
-<field label="Client Name" [(model)]="newClient.name"></field>
-<field label="Full URL" [(model)]="newClient.url"></field>
+<button (click)="saveClient()" text="save"></button>
+<field label="Client Name" [(model)]="activeClient.name"></field>
+<field label="Full URL" [(model)]="activeClient.url"></field>
 
 <h4>SSH</h4>
 <p>ex: </p>
-<pre *ngIf="newClient.sshUser && newClient.host">$ ssh {{newClient.sshUser}}@{{newClient.host}}:{{newClient.port}} <span *ngIf="newClient.sshKeyFile">-i {{newClient.sshKeyFile}}</span></pre>
-<field label="Host (IP or Hostname)" [(model)]="newClient.host"></field>
-<field label="SSH Port (Usually 22; 2222 for vagrant)" [(model)]="newClient.port"></field>
-<field label="SSH User" [(model)]="newClient.sshUser"></field>
-<field label="SSH Keyfile (absolute path)" [(model)]="newClient.sshUser" placeholder="/users/{{newClient.sshUser || 'username'}}/.ssh/id_rsa"></field>
+<pre *ngIf="activeClient.sshUser && activeClient.host">$ ssh {{activeClient.sshUser}}@{{activeClient.host}}:{{activeClient.port}} <span *ngIf="activeClient.sshKeyFile">-i {{activeClient.sshKeyFile}}</span></pre>
+<field label="Host (IP or Hostname)" [(model)]="activeClient.host"></field>
+<field label="SSH Port (Usually 22; 2222 for vagrant)" [(model)]="activeClient.port"></field>
+<field label="SSH User" [(model)]="activeClient.sshUser"></field>
+<field label="SSH Keyfile (absolute path)" [(model)]="activeClient.sshUser" placeholder="/users/{{activeClient.sshKeyFile || 'username'}}/.ssh/id_rsa"></field>
 
 <h4>CMS</h4>
-<select [(ngModel)]="newClient.cms">
+<select [(ngModel)]="activeClient.cms">
   <option value="Drupal 7">Drupal 7</option>
   <option value="Drupal 8">Drupal 8</option>
   <option value="Drupal 9">Drupal 9</option>
   <option value="WordPress">WordPress</option>
   <option value="Kentico">Kentico</option>
 </select>
-<field label="{{newClient.cms}} username" [(model)]="newClient.cmsUser"></field>
-<field label="{{newClient.cms}} password" [(model)]="newClient.cmsPassword" type="password"></field>
+<field label="{{activeClient.cms}} username" [(model)]="activeClient.cmsUser"></field>
+<field label="{{activeClient.cms}} password" [(model)]="activeClient.cmsPassword" type="password"></field>

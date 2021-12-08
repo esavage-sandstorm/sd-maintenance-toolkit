@@ -1,0 +1,15 @@
+:host {
+  border-radius: 0;
+  border: 2px solid var(--sdBlue);
+  background: transparent;
+  font-size: 1em;
+  padding: .3em 1em;
+  margin: .5em;
+  cursor: pointer;
+  transition: color .2s, background .2s;
+
+  &:hover {
+    background: var(--sdBlue);
+    color: #fff;
+  }
+}

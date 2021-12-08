@@ -1,0 +1,23 @@
+:host {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 2px solid var(--sdGreen);
+
+  span {
+    margin-left: 1em;
+  }
+
+  .client {
+    font-size: 16px;
+    margin-right: auto;
+    margin-left: 0;
+    a {
+      text-decoration: none;
+      color: inherit;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

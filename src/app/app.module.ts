@@ -3,6 +3,9 @@ import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
+import { ClientService } from './client.service';
+import { DataService } from './data.service';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { TestComponent } from './test/test.component';
@@ -12,6 +15,10 @@ import { TestStatusComponent } from './test-status/test-status.component';
 import { TestRowComponent } from './test-row/test-row.component';
 import { ClientsComponent } from './clients/clients.component';
 import { FieldComponent } from './field/field.component';
+import { SdButtonComponent } from './sd-button/sd-button.component';
+import { SdHeaderComponent } from './sd-header/sd-header.component';
+import { SdFooterComponent } from './sd-footer/sd-footer.component';
+import { TestCmsComponent } from './test-cms/test-cms.component';
 
 
 @NgModule({
@@ -23,7 +30,11 @@ import { FieldComponent } from './field/field.component';
     TestStatusComponent,
     TestRowComponent,
     ClientsComponent,
-    FieldComponent
+    FieldComponent,
+    SdButtonComponent,
+    SdHeaderComponent,
+    SdFooterComponent,
+    TestCmsComponent
   ],
   imports: [
     BrowserModule,
@@ -31,7 +42,7 @@ import { FieldComponent } from './field/field.component';
     HttpClientModule,
     FormsModule
   ],
-  providers: [],
+  providers: [ClientService, DataService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

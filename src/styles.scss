@@ -1,6 +1,53 @@
 /* You can add global styles to this file, and also import other style files */
+$color-green: #919F23;
+$color-blue: #014f9c;
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
+  width: 100vw;
+  height: 100vh;
+  oerflow: hidden;
+  --sdBlue: #014f9c;
+  --sdGreen: #919F23;
+}
+
+$corner-size: 20px;
+
+.sd-corner {
+  position: relative;
+  padding-top: $corner-size;
+  padding-left: $corner-size;
+
+  &::before {
+    content: '';
+    position: absolute;
+    z-index: 10;
+    display: block;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: $corner-size $corner-size 0 0;
+    border-color: #1b5269 transparent transparent transparent;
+  }
+  &::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 0 $corner-size $corner-size;
+    border-color: transparent transparent #c1dd54 transparent;
+    position: absolute;
+    z-index: 10;
+    display: block;
+    top: 0;
+    left: 0;
+  }
 }
 
 td {

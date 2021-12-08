@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
+import { ClientService } from '../client.service';
 
 @Component({
   selector: 'app-clients',
@@ -7,31 +8,63 @@ import { ApiService } from '../api.service';
   styleUrls: ['./clients.component.scss']
 })
 export class ClientsComponent implements OnInit {
-  newClient: any = {
-    name: 'Crown',
-    url : 'https://crowncork.com',
-    host: '172.99.75.203',
+  clients: Array<any> = [];
+  activeClient: any = {
+    name: '',
+    url : '',
+    host: '',
     port: 22,
-    sshUser: 'crowndev',
-    sshKeyFile: '/Users/ariksavage/.ssh/id_rsa',
-    cms: 'Drupal 7',
-    cmsUser: 'stormtrooper',
+    sshUser: '',
+    sshKeyFile: '',
+    cms: '',
+    cmsUser: '',
     cmsPassword: ''
   };
+  clientSubscription: any = {};
 
-  constructor() { }
-
+  constructor(protected api: ApiService, protected clientService: ClientService){}
   ngOnInit(): void {
+    this.getClients();
+    const self = this;
+    this.clientService.data().subscribe((client: any) => {
+      self.activeClient = client;
+    });
+  }
+
+  getClients(): void {
+    this.api.post('client/all', null).then( (clients: any) => {
+      this.clients = clients;
+    });
+  }
+
+  selectClient(client: any) {
+    this.activeClient = client;
+    this.clientService.update(client);
+  }
+
+  newClient() {
+    this.activeClient = {
+      name: 'New Client',
+      url : 'https://newclient.org',
+      host: '',
+      port: 22,
+      sshUser: '',
+      sshKeyFile: '',
+      cms: '',
+      cmsUser: '',
+      cmsPassword: ''
+    };
+    this.clientService.clear();
   }
 
   saveClient() {
     const data = {
-      client: this.newClient
+      client: this.activeClient
     }
-    console.log(data);
-    // return this.api.post('client/save', data).then( (result: any) => {
-    //   console.log(result);
-    // });
+    return this.api.post('client/save', data).then( (result: any) => {
+      this.getClients();
+      this.selectClient(this.activeClient);
+    });
   }
 
 }
