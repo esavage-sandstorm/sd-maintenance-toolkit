@@ -11,19 +11,27 @@
 
 <h4>SSH</h4>
 <p>ex: </p>
-<pre *ngIf="activeClient.sshUser && activeClient.host">$ ssh {{activeClient.sshUser}}@{{activeClient.host}}:{{activeClient.port}} <span *ngIf="activeClient.sshKeyFile">-i {{activeClient.sshKeyFile}}</span></pre>
-<field label="Host (IP or Hostname)" [(model)]="activeClient.host"></field>
-<field label="SSH Port (Usually 22; 2222 for vagrant)" [(model)]="activeClient.port"></field>
-<field label="SSH User" [(model)]="activeClient.sshUser"></field>
-<field label="SSH Keyfile (absolute path)" [(model)]="activeClient.sshUser" placeholder="/users/{{activeClient.sshKeyFile || 'username'}}/.ssh/id_rsa"></field>
+<pre *ngIf="activeClient.ssh.host && activeClient.ssh.host">$ ssh {{activeClient.ssh.user}}@{{activeClient.ssh.host}}:{{activeClient.ssh.port}} <span *ngIf="activeClient.ssh.keyFile">-i {{activeClient.ssh.keyFile}}</span></pre>
+<field label="Host (IP or Hostname)" [(model)]="activeClient.ssh.host"></field>
+<field label="SSH Port (Usually 22; 2222 for vagrant)" [(model)]="activeClient.ssh.port"></field>
+<field label="SSH User" [(model)]="activeClient.ssh.user"></field>
+<field label="SSH Keyfile (absolute path)" [(model)]="activeClient.ssh.key_file" placeholder="/users/{{activeClient.ssh.key_file || 'username'}}/.ssh/id_rsa"></field>
 
 <h4>CMS</h4>
-<select [(ngModel)]="activeClient.cms">
+<select [(ngModel)]="activeClient.cms.name" (change)="cmsChange()">
   <option value="Drupal 7">Drupal 7</option>
   <option value="Drupal 8">Drupal 8</option>
   <option value="Drupal 9">Drupal 9</option>
   <option value="WordPress">WordPress</option>
   <option value="Kentico">Kentico</option>
 </select>
-<field label="{{activeClient.cms}} username" [(model)]="activeClient.cmsUser"></field>
-<field label="{{activeClient.cms}} password" [(model)]="activeClient.cmsPassword" type="password"></field>
+<field label="{{activeClient.cms.name}} Login Path" [(model)]="activeClient.cms.login_path"></field>
+<field label="{{activeClient.cms.name}} username" [(model)]="activeClient.cms.user"></field>
+<field label="{{activeClient.cms.name}} password" [(model)]="activeClient.cms.password" type="password"></field>
+
+<h4>Contact Form</h4>
+
+  <field [(model)]="activeClient.forms[0].name" label="Form Name"></field>
+  <field [(model)]="activeClient.forms[0].url" label="Form URL"></field>
+  <field [(model)]="activeClient.forms[0].id" label="Form ID"></field>
+  <button (click)="getFormData(activeClient.forms[0])">Get form data</button>

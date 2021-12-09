@@ -2,40 +2,6 @@
 
 const Nightmare = require('nightmare');
 
-//define a new Nightmare method named "textExtract"
-//note that it takes a selector as a parameter
-Nightmare.action('checkCookieConsent', function(done){
-  this.evaluate_now(() => {
-    // dismiss Klaro cookie consent if present
-    const $klaroBtn = jQuery('.cm-btn-success');
-    if ($klaroBtn.length > 0){
-      $klaroBtn.click();
-    }
-  }, done)
-  .wait(2000)
-});
-
-Nightmare.action('promptCaptcha', function(done) {
-  //`this` is the Nightmare instance
-  this.evaluate_now(() => {
-    if (document.querySelectorAll('.g-recaptcha').length > 0) {
-      let instructions = document.createElement("p");
-      let n = 10;
-      var recaptcha = document.querySelector('.g-recaptcha');
-      recaptcha.parentNode.insertBefore(instructions, recaptcha)
-      instructions.scrollIntoView();
-      var countDown = setInterval(function() {
-        if (n == 1){
-          clearInterval(countDown);
-        }
-        instructions.innerText = `Click the captcha. You have ${n} seconds`;
-        n--;
-      }, 1000);
-    }
-  }, done)
-  .wait(10000)
-});
-
 Nightmare.action('show',
   function(name, options, parent, win, renderer, done) {
     parent.respondTo('show', function(inactive, done) {
@@ -89,8 +55,14 @@ const sdNightmareModule = function(){
     })
     .wait(1000)
     .evaluate(() => {
+      const response = {
+        reporting: false,
+        client_id: '',
+        property_id: ''
+      }
       if (window.ga){
-        const clientId = window.ga.getAll()[0].get('clientId');
+        response.client_id = window.ga.getAll()[0].get('clientId');
+        response.reporting = true;
         let propertyId = '';
         // find the script that created GA
         jQuery('script').each(function() {
@@ -104,17 +76,12 @@ const sdNightmareModule = function(){
               if (m.index === regex.lastIndex) {
                   regex.lastIndex++;
               }
-              propertyId = m[1];
+              response.property_id = m[1];
+              response.reporting = true;
             }
           }
         });
-        if (propertyId){
-          return `Reporting (Property Id: ${propertyId})`;
-        } else {
-          return `Reporting (Client Id: ${clientId})`;
-        }
-      } else {
-        return 'GA not found';
+        return response;
       }
     })
     .end()
@@ -123,13 +90,79 @@ const sdNightmareModule = function(){
       console.error('Search failed:', error)
     });
   }
-
-  mod.formSubmit = (data, cb) => {
+  // serialize form data and return
+  mod.getForm = (data, cb) => {
     const url = data.url;
-    const formId = data.formId;
-    const fields = data.fields;
+    const id = data.id ? data.id : null;
+    const nightmare = mod.Nightmare({ show: true});
+    nightmare
+      .goto(url)
+      .wait(1000)
+      .evaluate(() => {
+        // dismiss Klaro cookie consent if present
+        const $klaroBtn = jQuery('.cm-btn-success');
+        if ($klaroBtn.length > 0){
+          $klaroBtn.click();
+        }
+      })
+      .wait('form')
+      .evaluate((id = null) => {
+        if (id){
+          const $form = jQuery('#'+id);
+          const $copyBtn = jQuery('<button style="position:fixed;top:0;right:0;z-index: 100;" type="button">save form data</button>');
+          $copyBtn.click(function(e) {
+            window.formSerial = $form.serializeArray();
+            window.formId = $form.attr('id');
+          });
+          $form.prepend($copyBtn);
+        } else {
+          jQuery('form').each(function(){
+            const $form = jQuery(this);
+            const $copyBtn = jQuery('<button type="button">save form data</button>');
+            $copyBtn.click(function(e) {
+              window.formSerial = $form.serializeArray();
+              window.formId = $form.attr('id');
+            });
+            $form.prepend($copyBtn);
+          })
+        }
+      }, id)
+      .wait(function() {
+        var attempt = 0;
+        function getFormData() {
+          if (window.formSerial && window.formId) {
+            return true;
+          }
+          else {
+            attempt++;
 
-    const nightmare = mod.Nightmare();
+            if ( attempt < 1000 ) {
+              setTimeout(getFormData,1000);
+            }
+            else {
+              return true;
+            }
+          }
+        }
+        return getFormData();
+      })
+      .evaluate( () => {
+        return {
+          form_id: window.formId,
+          form_data: window.formSerial
+        }
+      })
+      .end()
+      .then(cb)
+      .catch(error => {
+        console.error('Search failed:', error)
+      });
+  }
+  mod.testForm = (data, cb) => {
+    const url = data.url;
+    const formId = data.form_id.replace('#','');
+    const formData = data.form_data;
+    const nightmare = mod.Nightmare({show: true});
 
     nightmare
       .goto(url)
@@ -141,41 +174,13 @@ const sdNightmareModule = function(){
           $klaroBtn.click();
         }
       })
-      .wait(`#${formId}`);
-    data.fields.forEach(field => {
-      if (field.type == 'text'){
-        nightmare
-        .wait(`#${formId} ${field.selector}`)
-        .type(`#${formId} ${field.selector}`, field.value);
-      }
-      if (field.type == 'click') {
-        nightmare
-        .wait(`#${formId} ${field.selector}`)
-        .click(`#${formId} ${field.selector}`);
-      }
-    });
-    if (data.hasCaptcha){
-      nightmare.evaluate(() => {
-        let instructions = document.createElement("p");
-        let n = 15;
-        var recaptcha = document.querySelector('.g-recaptcha');
-        recaptcha.parentNode.insertBefore(instructions, recaptcha)
-        instructions.scrollIntoView();
-        var countDown =setInterval(function() {
-          if (n == 1){
-            clearInterval(countDown);
-          }
-          instructions.innerText = `Click the captcha. You have ${n} seconds`;
-          n--;
-        }, 1000);
-      })
-      .wait(13000);
-    }
-    nightmare
-      .wait(2000)
+      .wait(`#${formId}`)
+      .evaluate((formData, formId) => {
+        formData.forEach(item => {
+          jQuery('#'+formId).find('[name="'+item.name+'"]').val(item.value);
+        });
+      }, formData, formId)
       // submit
-      .wait(`#${formId} ${data.submitSelector}`)
-      .click(`#${formId} ${data.submitSelector}`)
       .wait(5000)
       .evaluate(() => `Form submitted at ${new Date().toString()}`)
       .end()
@@ -183,6 +188,36 @@ const sdNightmareModule = function(){
       .catch(error => {
         console.error('Search failed:', error)
       });
+  }
+
+  mod.dismissKlaro = () => {
+    return function(nightmare) {
+      return nightmare
+      .evaluate(() => {
+        if (document.querySelectorAll('#klaro .cookie-notice button.accept-all').length > 0) {
+          document.querySelectorAll('#klaro .cookie-notice button.accept-all')[0].click();
+        }
+      })
+      .wait(function() {
+        var attempt = 0;
+        function verifyKlaro() {
+          if (document.querySelectorAll('#klaro .cookie-notice').length == 0) {
+              return true;
+          }
+          else {
+            attempt++;
+
+            if ( attempt < 1000 ) {
+              setTimeout(verifyKlaro,1000);
+            }
+            else {
+              return true;
+            }
+          }
+        }
+        return verifyKlaro();
+      });
+    }
   }
 
   mod.promptCaptcha = () => {
@@ -197,13 +232,15 @@ const sdNightmareModule = function(){
           instructions.innerText = `Complete the captcha...`;
           recaptcha.parentNode.insertBefore(instructions, recaptcha);
           instructions.scrollIntoView();
+        } else {
+          window.sdNightmare.noCaptchaFound = true;
         }
       })
       // wait for the captcha to be completed.
       .wait(function() {
         var attempt = 0;
         function verifyCaptcha() {
-          if (!(document.querySelectorAll('.g-recaptcha').length > 0) || (grecaptcha && grecaptcha.getResponse().length !== 0)) {
+          if ((window.sdNightmare && window.sdNightmare.noCaptchaFound) || !(document.querySelectorAll('.g-recaptcha').length > 0) || (grecaptcha && grecaptcha.getResponse().length !== 0)) {
               return true;
           }
           else {

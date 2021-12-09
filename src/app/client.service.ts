@@ -23,4 +23,18 @@ export class ClientService {
   clear(): void {
     this.update(null);
   }
+
+  clientSSH() {
+    if (this.clientData) {
+      return {
+        "host": this.clientData.host,
+        "username": this.clientData.sshUser,
+        "key_file": this.clientData.sshKeyFile,
+        "port": this.clientData.port
+      }
+    } else {
+      return false;
+    }
+  }
+  // end class
 }

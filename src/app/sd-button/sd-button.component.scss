@@ -1,15 +1,23 @@
 :host {
+  display: inline-block;
   border-radius: 0;
   border: 2px solid var(--sdBlue);
   background: transparent;
   font-size: 1em;
   padding: .3em 1em;
-  margin: .5em;
+  margin: 0 .5em 0 .5em;
   cursor: pointer;
   transition: color .2s, background .2s;
 
   &:hover {
     background: var(--sdBlue);
     color: #fff;
+  }
+
+  &[disabled] {
+    background: #ddd;
+    color: #000;
+    border-color: #000;
+    opacity: .2;
   }
 }

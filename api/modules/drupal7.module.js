@@ -9,8 +9,9 @@ const drupal7Module = function(){
   mod.login = (url, username, password) => {
     return function(nightmare) {
       return nightmare
+
       .goto(url + '/user/login')
-      .checkCookieConsent()
+      .use(sdNightmare.dismissKlaro())
       .wait('#edit-name')
       .type('#edit-name', username)
       .wait('#edit-pass')
@@ -121,6 +122,23 @@ const drupal7Module = function(){
         return data;
       }, data, url)
     };
+  }
+
+  /**
+   * Log in to Drupal.
+   * Returns true / false
+   */
+  mod.testLogin = (url, username, password, cb) => {
+    const nightmare = sdNightmare.Nightmare({ show: true, executionTimeout: 100000, waitTimeout: 100000})
+
+    nightmare
+    .use(mod.login(url, username, password))
+    .evaluate(() => document.body.className.indexOf('logged-in') > -1) // check if logged in
+    .end()
+    .then(cb)
+    .catch(error => {
+      console.error(error)
+    });
   }
 
   mod.maintenance = (url, username, password, cb) => {

@@ -19,6 +19,8 @@ import { SdButtonComponent } from './sd-button/sd-button.component';
 import { SdHeaderComponent } from './sd-header/sd-header.component';
 import { SdFooterComponent } from './sd-footer/sd-footer.component';
 import { TestCmsComponent } from './test-cms/test-cms.component';
+import { TestServerComponent } from './test-server/test-server.component';
+import { TestSiteComponent } from './test-site/test-site.component';
 
 
 @NgModule({
@@ -34,7 +36,9 @@ import { TestCmsComponent } from './test-cms/test-cms.component';
     SdButtonComponent,
     SdHeaderComponent,
     SdFooterComponent,
-    TestCmsComponent
+    TestCmsComponent,
+    TestServerComponent,
+    TestSiteComponent
   ],
   imports: [
     BrowserModule,

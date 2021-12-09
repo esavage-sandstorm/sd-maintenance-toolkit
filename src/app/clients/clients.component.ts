@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
 import { ClientService } from '../client.service';
+import { Client } from '../client';
 
 @Component({
   selector: 'app-clients',
@@ -9,17 +10,7 @@ import { ClientService } from '../client.service';
 })
 export class ClientsComponent implements OnInit {
   clients: Array<any> = [];
-  activeClient: any = {
-    name: '',
-    url : '',
-    host: '',
-    port: 22,
-    sshUser: '',
-    sshKeyFile: '',
-    cms: '',
-    cmsUser: '',
-    cmsPassword: ''
-  };
+  activeClient: Client = new Client();
   clientSubscription: any = {};
 
   constructor(protected api: ApiService, protected clientService: ClientService){}
@@ -27,8 +18,22 @@ export class ClientsComponent implements OnInit {
     this.getClients();
     const self = this;
     this.clientService.data().subscribe((client: any) => {
-      self.activeClient = client;
+      self.activeClient.load(client);
     });
+  }
+
+  cmsChange() {
+    if (!this.activeClient.cms.login_path){
+      if (this.activeClient.cms.name.indexOf('Drupal') > -1) {
+        this.activeClient.cms.login_path = '/user';
+      }
+      if (this.activeClient.cms.name.indexOf('WordPress') > -1) {
+        this.activeClient.cms.login_path = '/wp-admin';
+      }
+      if (this.activeClient.cms.name.indexOf('Kentico') > -1) {
+        this.activeClient.cms.login_path = '/admin';
+      }
+    }
   }
 
   getClients(): void {
@@ -38,22 +43,16 @@ export class ClientsComponent implements OnInit {
   }
 
   selectClient(client: any) {
-    this.activeClient = client;
+    this.activeClient.load(client);
     this.clientService.update(client);
   }
 
   newClient() {
-    this.activeClient = {
+    this.activeClient.clear();
+    this.activeClient.load({
       name: 'New Client',
-      url : 'https://newclient.org',
-      host: '',
-      port: 22,
-      sshUser: '',
-      sshKeyFile: '',
-      cms: '',
-      cmsUser: '',
-      cmsPassword: ''
-    };
+      url : 'https://newclient.org'
+    });
     this.clientService.clear();
   }
 
@@ -65,6 +64,14 @@ export class ClientsComponent implements OnInit {
       this.getClients();
       this.selectClient(this.activeClient);
     });
+  }
+
+  getFormData(form: any){
+    const data = {
+      url: form.url,
+      id: form.id
+    }
+    console.log(data);
   }
 
 }

@@ -1,0 +1,83 @@
+<h2>Server</h2>
+<button (click)="serverTestAll()">Run All</button>
+<div class="grid">
+<section class="memory">
+<h3>Memory</h3>
+<button (click)="getMemory()" *ngIf="!testing.memory">Get Memory</button>
+<span *ngIf="testing.memory">Getting memory...</span>
+<table class="memory-table" *ngIf="data.server.memory.length > 0 && !testing.memory">
+  <thead>
+    <tr>
+      <th scope="row" class="name"><span class="sr-only">Name</span></th>
+      <th class="total">Total</th>
+      <th class="used">Used</th>
+      <th class="free">Free</th>
+      <th class="shared">Shared</th>
+      <th class="buffer-cache">Buffer / Cache</th>
+      <th class="available">Available</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let mem of data.server.memory">
+      <th scope="row" class="name"><span *ngIf="mem.name">{{mem.name.replace(':', '')}}</span></th>
+      <td class="total"><span *ngIf="mem.total">{{mem.total}}</span></td>
+      <td class="used"><span *ngIf="mem.used">{{mem.used}}</span></td>
+      <td class="free"><span *ngIf="mem.free">{{mem.free}}</span></td>
+      <td class="shared"><span *ngIf="mem.shared">{{mem.shared}}</span></td>
+      <td class="buffer-cache"><span *ngIf="mem.buff_cache">{{mem.buff_cache}}</span></td>
+      <td class="available"><span *ngIf="mem.available">{{mem.available}}</span></td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section class="disk-space">
+<h3>Disk Space</h3>
+<button (click)="getDisks()" *ngIf="!testing.disk">Get Disks</button>
+<span *ngIf="testing.disk">Getting disks...</span>
+<table class="disk-table" *ngIf="data.server.disk.length > 0 && !testing.disk">
+  <thead>
+    <tr>
+      <th scope="row" class="filesystem">File System</th>
+      <th class="size">Size</th>
+      <th class="used">Used</th>
+      <th class="avail">Available</th>
+      <th class="use_percent">Use %</th>
+      <th class="bounted-on">Mounted On</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let disk of data.server.disk">
+      <th scope="row" class="filesystem"><span *ngIf="disk.filesystem">{{disk.filesystem}}</span></th>
+      <td class="size"><span *ngIf="disk.size">{{disk.size}}</span></td>
+      <td class="used"><span *ngIf="disk.used">{{disk.used}}</span></td>
+      <td class="avail"><span *ngIf="disk.avail">{{disk.avail}}</span></td>
+      <td class="use_percent"><span *ngIf="disk.use_percent">{{disk.use_percent}}</span></td>
+      <td class="bounted-on"><span *ngIf="disk.mounted_on">{{disk.mounted_on}}</span></td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section class="php">
+<h3>PHP</h3>
+<button (click)="testOpCacheEnabled()" *ngIf="!testing.opcache"> Check Zend OPcache</button>
+<button (click)="checkPhpVersions()" *ngIf="!testing.php"> Check PHP Versions</button>
+<p>{{testing.opcache? 'testing Zend OPcache...' : data.server.opCacheEnabled}}</p>
+<p *ngIf="testing.disk">Getting PHP Versions...</p>
+<table class="php-table" *ngIf="data.server.php.latest && !testing.php">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Current</th>
+      <th>Latest</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="col">PHP</th>
+      <td><span *ngIf="data.server.php.current">{{data.server.php.current}}</span></td>
+      <td><span *ngIf="data.server.php.latest">{{data.server.php.latest}}</span></td>
+    </tr>
+  </tbody>
+</table>
+</section>
+</div>

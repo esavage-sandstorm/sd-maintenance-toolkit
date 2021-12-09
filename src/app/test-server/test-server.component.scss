@@ -1,0 +1,55 @@
+.grid {
+  display: grid;
+  grid-gap: 20px;
+  grid-template-columns: repeat( auto-fit, minmax(500px, 1fr) );
+}
+button {
+  margin-left: 0;
+}
+
+section {
+  border: 1px solid var(--sdGreen);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+h3 {
+  margin: 0 0 .5em;
+}
+.memory-table,
+.disk-table,
+.php-table {
+  width: auto;
+  max-width: 100%;
+  border-collapse: collapse;
+
+  td,
+  th {
+    padding: .5em 1em;
+  }
+
+  td {
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+    text-align: center;
+
+    td:last-child {
+      border-right: 0;
+    }
+  }
+  tbody {
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    tr {
+      &:nth-of-type(odd) {
+        background: #ddd;
+      }
+    }
+
+    td,
+    th {
+      border-left: 1px solid #000;
+      border-right: 1px solid #000;
+    }
+  }
+}

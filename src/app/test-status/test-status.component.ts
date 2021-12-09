@@ -72,26 +72,4 @@ export class TestStatusComponent{
       this.updateData();
     });
   }
-  testOpCacheEnabled() {
-    const data = {module_name: 'Zend OPcache'};
-    this.status.opCacheEnabled = 'testing...';
-    return this.api.post('server/php-module', data).then( (result: any) => {
-      this.status.opCacheEnabled = result;
-      this.updateData();
-    });
-  }
-
-  testAll() {
-    const self = this;
-    self.testing = true;
-    self.testGoogleAnalyticsReporting().then((result: any) => {
-      self.testProdSSLExp().then((result: any) => {
-        self.testOpCacheEnabled().then((result: any) => {
-          self.testdrupal7Status().then((result: any) => {
-            self.testing = false;
-          });
-        });
-      });
-    });
-  }
 }

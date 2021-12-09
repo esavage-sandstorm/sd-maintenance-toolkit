@@ -4,9 +4,21 @@ var Client = require('ssh2').Client;
 const sdSSHModule = function(config) {
   const mod = this;
   mod.config = config;
-  mod.debug = true;
+  mod.debug = false;
 
   mod.command = (cmd, cb) => {
+    if (!mod.config.host) {
+      cb(null, "No `host` provided");
+      return false;
+    }
+    if (!mod.config.username) {
+      cb(null, "No `usrename` provided");
+      return false;
+    }
+    if (!mod.config.key_file) {
+      cb(null, "No `key_file` provided");
+      return false;
+    }
     if (mod.debug){
       console.log(cmd);
     }
@@ -23,14 +35,15 @@ const sdSSHModule = function(config) {
           var str = String(data).trim();
           cb(str);
         }).stderr.on('data', function(data) {
-          // console.log('STDERR: ' + data);
+          console.log('STDERR: ' + data);
+          throw err
         });
       });
     }).connect({
-      host: mod.config.hostAddr,
-      port: mod.config.port,
+      host: mod.config.host,
+      port: mod.config.port ? mod.config.port : 22,
       username: mod.config.username,
-      privateKey: require('fs').readFileSync(mod.config.keyFile)
+      privateKey: require('fs').readFileSync(mod.config.key_file)
     });
   }
 
@@ -44,18 +57,14 @@ const sdSSHModule = function(config) {
   }
 
   mod.checkSSLExpiration = (url, cb) => {
+    url = url.replace(/https*:\/\//, '');
     const cmd = `openssl s_client -servername ${url} -connect ${url}:443 2>/dev/null | openssl x509 -noout -dates | grep notAfter`;
     mod.command(cmd, cb);
-  }
-
-  mod.textToKey = (text) => {
-
   }
 
   mod.parseShellTable = (data) => {
     const rows = data.split("\n");
     const labels = rows.splice(0, 1)[0].split(/\s{2,}|\s(?=[A-Z])/);
-    console.log('labels', labels);
     let items = [];
     rows.forEach((row) => {
       const columns = row.split(/\s+/);
@@ -74,9 +83,13 @@ const sdSSHModule = function(config) {
 
   mod.serverMemory = (cb) => {
     const cmd = `free -mh`;
-    const parseMem = (data) => {
-      const memory = mod.parseShellTable(data);
-      cb(memory);
+    const parseMem = (data, err) => {
+      if (data){
+        const memory = mod.parseShellTable(data);
+        cb(memory);
+      } else if (err) {
+        cb(null, err);
+      }
     };
 
     mod.command(cmd, parseMem);
@@ -85,9 +98,13 @@ const sdSSHModule = function(config) {
   mod.serverDiskSpace = (cb) => {
     const cmd = `df -h`;
 
-    const parseSpace = (data) => {
-      const space = mod.parseShellTable(data);
-      cb(space);
+    const parseSpace = (data, err) => {
+      if (data) {
+        const space = mod.parseShellTable(data);
+        cb(space);
+      } else if (err) {
+        cb(null, err);
+      }
     }
 
     mod.command(cmd, parseSpace);
