@@ -200,15 +200,15 @@ const sdNightmareModule = function(){
       })
       .wait(function() {
         var attempt = 0;
-        function verifyKlaro() {
+        function verifyKlaro(done = false) {
           if (document.querySelectorAll('#klaro .cookie-notice').length == 0) {
-              return true;
+            return true;
           }
           else {
             attempt++;
 
             if ( attempt < 1000 ) {
-              setTimeout(verifyKlaro,1000);
+              setTimeout(verifyKlaro, 1000);
             }
             else {
               return true;
@@ -221,11 +221,13 @@ const sdNightmareModule = function(){
   }
 
   mod.promptCaptcha = () => {
+
     return function(nightmare) {
       return nightmare
       // tell the user to do the captcha.
       .evaluate(() => {
         if (document.querySelectorAll('.g-recaptcha').length > 0) {
+          window.sdNightmare = window.sdNightmare || {}
           let instructions = document.createElement("p");
           let n = 20;
           var recaptcha = document.querySelector('.g-recaptcha');
@@ -240,8 +242,9 @@ const sdNightmareModule = function(){
       .wait(function() {
         var attempt = 0;
         function verifyCaptcha() {
-          if ((window.sdNightmare && window.sdNightmare.noCaptchaFound) || !(document.querySelectorAll('.g-recaptcha').length > 0) || (grecaptcha && grecaptcha.getResponse().length !== 0)) {
-              return true;
+          console.log('verify captcha');
+          if (window.sdNightmare.noCaptchaFound || !(document.querySelectorAll('.g-recaptcha').length > 0) || (grecaptcha && grecaptcha.getResponse().length !== 0)) {
+            return true;
           }
           else {
             attempt++;

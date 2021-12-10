@@ -183,15 +183,12 @@ api.post('/api/site/drupal7-maintenance', (req, res) => {
 });
 
 api.post('/api/site/drupal7-test-login', (req, res) => {
-  const url = req.body.url;
+  const url = req.body.url + req.body.login_path;
+  console.log(url);
   const username = req.body.username;
   const password = req.body.password;
-  const cb = function(data, err){
-    if(data){
-      res.json(data);
-    } else if (err) {
-      res.json(err);
-    }
+  const cb = function(data){
+    res.json(data);
   }
   drupal7.testLogin(url, username, password, cb);
 });

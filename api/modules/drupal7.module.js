@@ -6,11 +6,11 @@ const drupal7Module = function(){
   const mod = this;
 
   // Nightmare login
-  mod.login = (url, username, password) => {
+  mod.login = (url, username, password, cb) => {
     return function(nightmare) {
       return nightmare
-
-      .goto(url + '/user/login')
+      .goto(url)
+      .wait(1000)
       .use(sdNightmare.dismissKlaro())
       .wait('#edit-name')
       .type('#edit-name', username)
@@ -19,7 +19,7 @@ const drupal7Module = function(){
       .use(sdNightmare.promptCaptcha())
       .wait('#edit-submit')
       .click('#edit-submit')
-      .wait('body.logged-in')
+      .wait('body.logged-in');
     };
   };
 
@@ -130,10 +130,18 @@ const drupal7Module = function(){
    */
   mod.testLogin = (url, username, password, cb) => {
     const nightmare = sdNightmare.Nightmare({ show: true, executionTimeout: 100000, waitTimeout: 100000})
-
     nightmare
-    .use(mod.login(url, username, password))
-    .evaluate(() => document.body.className.indexOf('logged-in') > -1) // check if logged in
+    .use(mod.login(url, username, password, cb))
+    .wait(1000)
+    .evaluate(() => {
+      if (document.body.className.indexOf('logged-in') > -1
+          && !(document.body.className.indexOf('not-logged-in') > -1
+        )){
+            return true;
+      } else {
+        return false;
+      }
+    })
     .end()
     .then(cb)
     .catch(error => {
