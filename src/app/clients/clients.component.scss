@@ -9,3 +9,18 @@
     color: #fff;
   }
 }
+
+.form-data {
+  .form-item {
+    display: flex;
+    margin-top: 10px;
+
+    .remove-field {
+      flex: 0 1 auto;
+    }
+
+    field {
+      flex: 1 0 auto;
+    }
+  }
+}

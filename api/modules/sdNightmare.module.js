@@ -37,6 +37,10 @@ const sdNightmareModule = function(){
   const mod = this;
 
   mod.Nightmare = (config = {show: false}) => {
+    // allow insecure connections to local hosts
+    config.switches = {
+      'ignore-certificate-errors': true
+    };
     return Nightmare(config);
   }
 
@@ -94,7 +98,7 @@ const sdNightmareModule = function(){
   mod.getForm = (data, cb) => {
     const url = data.url;
     const id = data.id ? data.id : null;
-    const nightmare = mod.Nightmare({ show: true});
+    const nightmare = mod.Nightmare({ show: true, executionTimeout: 600000, waitTimeout: 600000});
     nightmare
       .goto(url)
       .wait(1000)
@@ -109,7 +113,7 @@ const sdNightmareModule = function(){
       .evaluate((id = null) => {
         if (id){
           const $form = jQuery('#'+id);
-          const $copyBtn = jQuery('<button style="position:fixed;top:0;right:0;z-index: 100;" type="button">save form data</button>');
+          const $copyBtn = jQuery('<button style="position:fixed;top:50%;right:0;z-index: 100;" type="button">save form data</button>');
           $copyBtn.click(function(e) {
             window.formSerial = $form.serializeArray();
             window.formId = $form.attr('id');
@@ -160,9 +164,9 @@ const sdNightmareModule = function(){
   }
   mod.testForm = (data, cb) => {
     const url = data.url;
-    const formId = data.form_id.replace('#','');
-    const formData = data.form_data;
-    const nightmare = mod.Nightmare({show: true});
+    const formId = data.id.replace('#','');
+    const formData = data.formData;
+    const nightmare = mod.Nightmare({show: false});
 
     nightmare
       .goto(url)
@@ -176,12 +180,13 @@ const sdNightmareModule = function(){
       })
       .wait(`#${formId}`)
       .evaluate((formData, formId) => {
+        const $form = jQuery('#'+formId);
         formData.forEach(item => {
           jQuery('#'+formId).find('[name="'+item.name+'"]').val(item.value);
         });
+        $form.submit();
       }, formData, formId)
-      // submit
-      .wait(5000)
+      .wait(10000)
       .evaluate(() => `Form submitted at ${new Date().toString()}`)
       .end()
       .then(cb)

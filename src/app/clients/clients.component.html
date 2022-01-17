@@ -30,8 +30,24 @@
 <field label="{{activeClient.cms.name}} password" [(model)]="activeClient.cms.password" type="password"></field>
 
 <h4>Contact Form</h4>
+  <div *ngFor="let form  of activeClient.forms; index as i;">
+    <field [(model)]="form.name" label="Form Name"></field>
+    <field [(model)]="form.url" label="Form URL"></field>
+    <field [(model)]="form.id" label="Form ID"></field>
+    <p>After clicking the button below, a NightmareJS window will pop up. Fill in the form with any test data you choose, and click the "save form data" button. The form data entered will be saved here for future testing.</p>
+    <p>You have 10 minutes.</p>
+    <p>Use placeholders in values (these will be updated as necessary):</p>
+    <ul>
+      <li><strong>[[q]]</strong> (Quarter)</li>
+      <li><strong>[[y]]</strong> (Year)</li>
+    </ul>
+    <p *ngIf="submitMsg">{{submitMsg}}</p>
+    <button (click)="getFormData(i)">Get form data</button>
+    <button (click)="sendFormData(i)">Test form data</button>
+    <div class="form-data" *ngIf="form.formData">
+      <div class="form-item" *ngFor="let field of form.formData; index as a">
+      <button class="remove-field" (click)="form.formData.splice(a, 1)" title="Remove field: {{fieldLabelFormat(field.name)}}">x</button>
+      <field [(model)]="field.value" [label]="fieldLabelFormat(field.name)"></field>
 
-  <field [(model)]="activeClient.forms[0].name" label="Form Name"></field>
-  <field [(model)]="activeClient.forms[0].url" label="Form URL"></field>
-  <field [(model)]="activeClient.forms[0].id" label="Form ID"></field>
-  <button (click)="getFormData(activeClient.forms[0])">Get form data</button>
+    </div>
+  </div>

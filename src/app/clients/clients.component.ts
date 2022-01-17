@@ -12,6 +12,7 @@ export class ClientsComponent implements OnInit {
   clients: Array<any> = [];
   activeClient: Client = new Client();
   clientSubscription: any = {};
+  submitMsg: string = '';
 
   constructor(protected api: ApiService, protected clientService: ClientService){}
   ngOnInit(): void {
@@ -51,27 +52,70 @@ export class ClientsComponent implements OnInit {
     this.activeClient.clear();
     this.activeClient.load({
       name: 'New Client',
-      url : 'https://newclient.org'
+      url : 'https://newclient.org',
+      forms: []
     });
     this.clientService.clear();
+  }
+
+  fieldLabelFormat(raw: string): string{
+    var label = raw.replace(/_+/gm, ' ');
+    label = label.replace(/\[(.+)\]/gm, ` - $1`);
+    label = label.replace(/(\b[a-z](?!\s))/g, function(x){return x.toUpperCase();});
+    return label.trim();
   }
 
   saveClient() {
     const data = {
       client: this.activeClient
     }
+
     return this.api.post('client/save', data).then( (result: any) => {
       this.getClients();
       this.selectClient(this.activeClient);
     });
   }
 
-  getFormData(form: any){
+  formDataPlaceholders(formData: any){
+    var d = new Date();
+    var q = 'Q' + Math.ceil((d.getMonth()+1) / 3);
+    var y = d.getFullYear().toString();
+    formData.forEach((field: any) => {
+      field.value = field.value.replace('[[q]]', q);
+      field.value = field.value.replace('[[y]]', y);
+    });
+    return formData;
+  }
+
+  sendFormData(i: number){
+    var form = this.activeClient.forms[i];
+    const self = this;
+
+    form.formData = this.formDataPlaceholders(form.formData);
+    this.api.post('site/test-form', form).then( (response: any) => {
+      self.submitMsg = response;
+    });
+  }
+
+  getFormData(i: number){
+    var form = this.activeClient.forms[i];
     const data = {
       url: form.url,
       id: form.id
     }
-    console.log(data);
+    const self = this;
+    this.api.post('site/get-form', data).then( (response: any) => {
+      self.activeClient.forms[i].formData = response.form_data.filter((field: any) => {
+        if (field.name.indexOf('captcha') > -1){
+          return false
+        }
+        else if (field.name.indexOf('form') > -1) {
+          return false;
+        } else {
+          return true;
+        }
+      });
+    });
   }
 
 }
