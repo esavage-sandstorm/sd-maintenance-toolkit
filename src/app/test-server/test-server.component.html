@@ -1,3 +1,4 @@
+
 <h2>Server</h2>
 <button (click)="serverTestAll()">Run All</button>
 <div class="grid">
@@ -34,7 +35,42 @@
 <h3>Disk Space</h3>
 <button (click)="getDisks()" *ngIf="!testing.disk">Get Disks</button>
 <span *ngIf="testing.disk">Getting disks...</span>
-<table class="disk-table" *ngIf="data.server.disk.length > 0 && !testing.disk">
+<table class="disk-table" *ngIf="rootDisk() && !testing.disk">
+  <tbody>
+    <tr>
+      <td class="filesystem" colspan="2">
+        <label>Filesystem</label>
+        <span *ngIf="rootDisk().filesystem">{{rootDisk().filesystem}}</span>
+      </td>
+      <td class="mounted-on" colspan="2">
+        <label>Mounted On</label>
+        <span *ngIf="rootDisk().mounted_on">{{rootDisk().mounted_on}}</span>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="4">&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="total">
+        <label>Total</label>
+        <span *ngIf="rootDisk().size">{{rootDisk().size}}</span>
+      </td>
+      <td class="used">
+        <label>Used</label>
+        <span *ngIf="rootDisk().used">{{rootDisk().used}}</span>
+      </td>
+      <td class="avail">
+        <label>Available</label>
+        <span *ngIf="rootDisk().avail">{{rootDisk().avail}}</span>
+      </td>
+      <td class="use_percent">
+        <label>Use %</label>
+        <span *ngIf="rootDisk().use_percent">{{rootDisk().use_percent}}</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="disk-table other-disks" *ngIf="otherDisks() && !testing.disk">
   <thead>
     <tr>
       <th scope="row" class="filesystem">File System</th>
@@ -46,7 +82,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let disk of data.server.disk">
+    <tr *ngFor="let disk of otherDisks()">
       <th scope="row" class="filesystem"><span *ngIf="disk.filesystem">{{disk.filesystem}}</span></th>
       <td class="size"><span *ngIf="disk.size">{{disk.size}}</span></td>
       <td class="used"><span *ngIf="disk.used">{{disk.used}}</span></td>

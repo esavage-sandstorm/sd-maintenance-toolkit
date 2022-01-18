@@ -17,13 +17,11 @@ export class TestComponent implements OnInit {
   constructor(protected api: ApiService, protected dataService: DataService, protected clientService: ClientService) { }
 
   ngOnInit(): void {
-    this.data = this.dataService.data().subscribe((data: any) => {
+    this.dataService.data().subscribe((data: any) => {
       this.data = data;
-      console.log('subscribe', data);
     });
     this.clientService.data().subscribe((client: any) => {
       this.client = client;
     });
   }
-
 }

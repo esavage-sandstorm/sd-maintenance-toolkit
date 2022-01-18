@@ -27,10 +27,10 @@ export class ClientService {
   clientSSH() {
     if (this.clientData) {
       return {
-        "host": this.clientData.host,
-        "username": this.clientData.sshUser,
-        "key_file": this.clientData.sshKeyFile,
-        "port": this.clientData.port
+        "host": this.clientData.ssh.host,
+        "username": this.clientData.ssh.user,
+        "key_file": this.clientData.ssh.key_file,
+        "port": this.clientData.ssh.port
       }
     } else {
       return false;

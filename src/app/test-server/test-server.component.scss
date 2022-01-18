@@ -16,16 +16,46 @@ section {
 h3 {
   margin: 0 0 .5em;
 }
+
+.disk-table {
+  tr {
+    border-top: 1px solid #000;
+  }
+
+  &.other-disks {
+    font-size: 10px;
+    margin-top: 20px;
+    td,
+    th {
+      word-break: break-word;
+
+      &.filesystem {
+        width: 30%;
+      }
+
+      &.mounted-on {
+        width: 20%;
+      }
+    }
+  }
+}
 .memory-table,
 .disk-table,
 .php-table {
-  width: auto;
+  width: 100%;
   max-width: 100%;
   border-collapse: collapse;
 
   td,
   th {
-    padding: .5em 1em;
+    // padding: .5em 1em;
+
+    label {
+      font-variant: small-caps;
+      display: block;
+      margin: 0 0 .2em;
+      border-bottom: 1px solid #000;
+    }
   }
 
   td {
@@ -40,11 +70,11 @@ h3 {
   tbody {
     border-top: 1px solid #000;
     border-bottom: 1px solid #000;
-    tr {
-      &:nth-of-type(odd) {
-        background: #ddd;
-      }
-    }
+    // tr {
+    //   &:nth-of-type(odd) {
+    //     background: #ddd;
+    //   }
+    // }
 
     td,
     th {

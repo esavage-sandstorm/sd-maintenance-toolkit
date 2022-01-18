@@ -8,7 +8,7 @@ const routes: Routes = [
   { path: 'clients', component: ClientsComponent},
   { path: 'test', component: TestComponent, runGuardsAndResolvers: 'always'},
   // { path: 'report', component: RecipeEditComponent, runGuardsAndResolvers: 'always'},
-  { path: '', redirectTo: '/clients', pathMatch: 'full' }
+  // { path: '', redirectTo: '/clients', pathMatch: 'full' }
 ];
 
 @NgModule({

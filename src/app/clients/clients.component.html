@@ -48,6 +48,5 @@
       <div class="form-item" *ngFor="let field of form.formData; index as a">
       <button class="remove-field" (click)="form.formData.splice(a, 1)" title="Remove field: {{fieldLabelFormat(field.name)}}">x</button>
       <field [(model)]="field.value" [label]="fieldLabelFormat(field.name)"></field>
-
     </div>
   </div>

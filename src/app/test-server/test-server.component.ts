@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { ApiService } from '../api.service';
 import { DataService } from '../data.service';
 import { ClientService } from '../client.service';
@@ -33,14 +33,16 @@ export class TestServerComponent implements OnInit {
   constructor(private router: Router, protected api: ApiService, protected dataService: DataService, protected clientService: ClientService) { }
 
   ngOnInit(): void {
+    const self = this;
     this.dataService.data().subscribe((data: any) => {
       Object.assign(this.data, data);
     });
     this.clientService.data().subscribe((client: any) => {
-      if (client.host) {
-        this.client = client;
+
+      if (client.ssh.host) {
+        self.client = client;
       } else {
-        this.router.navigate(['/clients']);
+        // this.router.navigate(['/clients']);
       }
     });
   }
@@ -57,14 +59,20 @@ export class TestServerComponent implements OnInit {
       php: true
     };
     this.getMemory().then(memory => {
-      this.getDisks().then(memory => {
-        this.checkPhpVersions().then(memory => {
-          this.testOpCacheEnabled().then(memory => {
+      this.getDisks().then(disks => {
+        this.checkPhpVersions().then(php => {
+          this.testOpCacheEnabled().then(opCache => {
           });
         });
       });
     });
   }
+
+  clientJSON(){
+    return JSON.stringify(this.client.clientData);
+  }
+
+
 
   testOpCacheEnabled() {
     this.testing.opcache = true;
@@ -87,6 +95,7 @@ export class TestServerComponent implements OnInit {
   getMemory() {
     this.testing.memory = true;
     const data: any = this.clientService.clientSSH();
+    console.log('client', data);
     if (data) {
       return this.api.post('server/memory', data).then( (result: any) => {
         this.testing.memory = false;
@@ -101,6 +110,27 @@ export class TestServerComponent implements OnInit {
     }
   }
 
+  rootDisk() {
+    var root = this.data.server.disk.filter((disk: any) => {
+      return disk.mounted_on == '/';
+    });
+    if (root.length == 1){
+      return root[0];
+    } else {
+      return false;
+    }
+  }
+
+  otherDisks() {
+    var disks = this.data.server.disk.filter((disk: any) => {
+      return disk.mounted_on != '/';
+    });
+    if (disks.length > 0){
+      return disks;
+    } else {
+      return false;
+    }
+  }
   getDisks() {
     this.testing.disk = true;
     const data: any = this.clientService.clientSSH();
