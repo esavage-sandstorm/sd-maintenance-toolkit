@@ -1,6 +1,7 @@
 import { Injectable, OnInit } from '@angular/core';
 import { Observer, Observable,  BehaviorSubject} from 'rxjs';
 import { map } from 'rxjs/operators';
+import { CookieService } from './cookie.service';
 
 @Injectable({
   providedIn: 'root'
@@ -8,8 +9,16 @@ import { map } from 'rxjs/operators';
 export class ClientService {
   _client = new BehaviorSubject<any>({});
   clientData: any = null;
+  cname: string = 'sd-maintenance-client';
 
-  constructor() {}
+  constructor(private cookies: CookieService) {
+    var cvalue = this.cookies.get(this.cname);
+    if (cvalue){
+      var client = JSON.parse(cvalue);
+      this.update(client);
+      console.log('cvalue', cvalue);
+    }
+  }
 
   data() {
     return this._client.asObservable();
@@ -17,6 +26,7 @@ export class ClientService {
 
   update(data: any){
     this.clientData = data;
+    this.cookies.set(this.cname, JSON.stringify(data));
     this._client.next(data);
   }
 

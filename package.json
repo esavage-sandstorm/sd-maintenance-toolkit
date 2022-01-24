@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "api": "node api/index.js",
-    "serve": "ng serve  --live-reload false --proxy-config proxy.conf.json",
+    "serve": "ng serve --live-reload false --proxy-config proxy.conf.json",
     "start": "npm-run-all --parallel api serve",
     "stop": "pkill --signal SIGINT ng; pkill --signal SIGINT api;",
     "watch": "npm-run-all --parallel api live",
