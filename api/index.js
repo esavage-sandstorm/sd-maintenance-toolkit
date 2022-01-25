@@ -25,12 +25,6 @@ const sdNightmare = new sdNightmareModule();
 const sdClientModule = require('./modules/sdClient.module.js');
 const sdClient = new sdClientModule();
 
-const drupal7Module = require('./modules/drupal7.module.js');
-const drupal7 = new drupal7Module();
-
-const drupal9Module = require('./modules/drupal9.module.js');
-const drupal9 = new drupal9Module();
-
 // just to test connection
 api.get('/api/hello', (req, res) => {
   res.json('hello');
@@ -171,56 +165,6 @@ api.post('/api/site/get-form', (req, res) => {
   }
 });
 
-api.post('/api/site/maintenance', (req, res) => {
-  const url = req.body.url;
-  const loginPage = req.body.loginPage;
-  const username = req.body.username;
-  const password = req.body.password;
-  const cms = req.body.cms.name;
-  const version = req.body.cms.version;
-  const v = version.split('.')[0];
-  const cb = function(data, err){
-    if(data){
-      res.json(data);
-    } else if (err) {
-      res.json(err);
-    }
-  }
-  if (cms == 'Drupal'){
-    if (v == '7') {
-      drupal7.maintenance(url, username, password, cb);
-    } else {
-      drupal9.maintenance(url, loginPage, username, password, cb);
-    }
-  }
-  // other cmseses
-});
-
-api.post('/api/site/drupal7-maintenance', (req, res) => {
-  const url = req.body.url;
-  const username = req.body.username;
-  const password = req.body.password;
-  const cb = function(data, err){
-    if(data){
-      res.json(data);
-    } else if (err) {
-      res.json(err);
-    }
-  }
-  drupal7.maintenance(url, username, password, cb);
-});
-
-api.post('/api/site/drupal7-test-login', (req, res) => {
-  const url = req.body.url + req.body.login_path;
-  console.log(url);
-  const username = req.body.username;
-  const password = req.body.password;
-  const cb = function(data){
-    res.json(data);
-  }
-  drupal7.testLogin(url, username, password, cb);
-});
-
 api.post('/api/site/page-speed', (req, res) => {
   const url = req.body.url;
   const cb = function(data, err){
@@ -233,6 +177,62 @@ api.post('/api/site/page-speed', (req, res) => {
   sdNightmare.googlePageSpeed(url, cb);
 });
 
+// CMS tests
+const cmsModule = (cms) => {
+  const name = cms.name;
+  const version = cms.version;
+  let mod = null;
+  const v = version.split('.')[0];
+  if (name == 'Drupal') {
+    if (v == '7') {
+      const drupal7Module = require('./modules/drupal7.module.js');
+      mod = new drupal7Module();
+    } else {
+      const drupal9Module = require('./modules/drupal9.module.js');
+      mod = new drupal9Module();
+    }
+  }
+  // other CMS
+  return mod;
+}
+
+const cmsTest = (req, res, method) => {
+  const url = req.body.url;
+  const loginPage = req.body.loginPage;
+  const username = req.body.username;
+  const password = req.body.password;
+  const cms = cmsModule(req.body.cms);
+  const cb = function(data, err){
+    if(data){
+      res.json(data);
+    } else if (err) {
+      res.json(err);
+    }
+  }
+  cms[method](url, loginPage, username, password, cb);
+}
+
+api.post('/api/cms/test-login', (req, res) => {
+  cmsTest(req, res, 'testLogin');
+});
+
+api.post('/api/cms/status', (req, res) => {
+  cmsTest(req, res, 'checkStatus');
+});
+
+api.post('/api/cms/updates', (req, res) => {
+  cmsTest(req, res, 'checkUpdates');
+});
+
+api.post('/api/cms/errors', (req, res) => {
+  cmsTest(req, res, 'checkErrors');
+});
+
+api.post('/api/cms/maintenance', (req, res) => {
+  cmsTest(req, res, 'maintenance');
+});
+
+// Clients
 api.post('/api/client/all', (req, res) => {
   const cb = function(data, err){
     if(data){

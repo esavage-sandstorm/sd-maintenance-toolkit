@@ -32,24 +32,27 @@ const drupal9Module = function(){
       .evaluate((data) => {
         data.status = {};
         Array.from(document.querySelectorAll('.system-status-report__entry')).forEach(row => {
+          let item = {};
           const titleTd = row.querySelectorAll('.system-status-report__status-title');
-          let label = '';
+          item.label = '';
           if (titleTd && titleTd[0]){
-            label = titleTd[0].innerText.trim();
+            item.label = titleTd[0].innerText.trim();
           }
-          var key = label.replace(/ +/g,'_');
+          let key = item.label.replace(/[ \.-]+/g,'_');
+          key = key.replace(/_+/g,'_');
           key = key.replace(/[^0-9a-zA-Z_]/gi, '');
           key = key.toLowerCase();
           const valueTd = row.querySelectorAll('.system-status-report__entry__value');
-          let value = '';
+          item.value = '';
           if (valueTd && valueTd[0]){
-            value = valueTd[0].innerText.trim();
+            item.value = valueTd[0].innerText.trim();
           }
-          if(key && label && value){
-            data.status[key] = {
-              label: label,
-              value: value
-            };
+          if (item.value.indexOf("\n") > -1) {
+            item.detail = item.value.split("\n")[1];
+            item.value = item.value.split("\n")[0];
+          }
+          if(key && item.label && item.value){
+            data.status[key] = item;
           }
         });
         return data;
@@ -58,7 +61,7 @@ const drupal9Module = function(){
   };
 
   // Nightmare evaluate available updates
-  mod.moduleUpdates = (url, data = {}) => {
+  mod.updates = (url, data = {}) => {
     return function(nightmare) {
       return nightmare
       .goto(url + '/admin/reports/updates')
@@ -85,7 +88,7 @@ const drupal9Module = function(){
   };
 
   // Nightmare get a list of PHP errors
-  mod.PhpErrors = (url, data = {}) => {
+  mod.errors = (url, data = {}) => {
     return function(nightmare) {
       return nightmare
       .goto(url + '/admin/reports/dblog?type%5B%5D=php&severity%5B%5D=3')
@@ -111,12 +114,13 @@ const drupal9Module = function(){
    * Log in to Drupal.
    * Returns true / false
    */
-  mod.testLogin = (url, username, password, cb) => {
+  mod.testLogin = (url, loginPage, username, password, cb) => {
     const nightmare = sdNightmare.Nightmare({ show: true, executionTimeout: 100000, waitTimeout: 100000})
+    let loginURL = url + loginPage;
 
     nightmare
-    .use(mod.login(url, username, password, cb))
-    .wait(1000)
+    .use(mod.login(loginURL, username, password, cb))
+    .wait('body')
     .evaluate(() => {
       if (document.body.className.indexOf('logged-in') > -1
           && !(document.body.className.indexOf('not-logged-in') > -1
@@ -133,9 +137,53 @@ const drupal9Module = function(){
     });
   }
 
-  mod.maintenance = (url, loginPage, username, password, cb) => {
+  mod.checkStatus = (url, loginPage, username, password, cb) => {
     const nightmare = sdNightmare.Nightmare({ show: true, executionTimeout: 100000, waitTimeout: 100000})
     let data = {};
+    let loginURL = url + loginPage;
+
+    nightmare
+    .use(mod.login(loginURL, username, password))
+    .use(mod.status(url))
+    .end()
+    .then(cb)
+    .catch(error => {
+      console.error(error)
+    });
+  }
+
+  mod.checkUpdates = (url, loginPage, username, password, cb) => {
+    const nightmare = sdNightmare.Nightmare({ show: true, executionTimeout: 100000, waitTimeout: 100000})
+    let data = {};
+    let loginURL = url + loginPage;
+
+    nightmare
+    .use(mod.login(loginURL, username, password))
+    .use(mod.updates(url))
+    .end()
+    .then(cb)
+    .catch(error => {
+      console.error(error)
+    });
+  }
+
+  mod.checkErrors = (url, loginPage, username, password, cb) => {
+    const nightmare = sdNightmare.Nightmare({ show: true, executionTimeout: 100000, waitTimeout: 100000})
+    let data = {};
+    let loginURL = url + loginPage;
+
+    nightmare
+    .use(mod.login(loginURL, username, password))
+    .use(mod.errors(url))
+    .end()
+    .then(cb)
+    .catch(error => {
+      console.error(error)
+    });
+  }
+
+  mod.maintenance = (url, loginPage, username, password, cb) => {
+    const nightmare = sdNightmare.Nightmare({ show: true, executionTimeout: 100000, waitTimeout: 100000})
     let loginURL = url + loginPage;
 
     nightmare
@@ -144,11 +192,11 @@ const drupal9Module = function(){
     .then(data => {
       // get modules
       nightmare
-      .use(mod.moduleUpdates(url, data))
+      .use(mod.updates(url, data))
       .then(data => {
         // get errors
         nightmare
-        .use(mod.PhpErrors(url, data))
+        .use(mod.errors(url, data))
         .end()
         .then(cb)
         .catch(error => {

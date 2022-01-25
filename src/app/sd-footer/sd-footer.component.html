@@ -1,3 +1,3 @@
-<span class="client" *ngIf="client.name"><a routerLink="/clients">Client</a>: {{client.name}}</span>
+<span class="client" *ngIf="client && client.name"><a routerLink="/clients">Client</a>: {{client.name}} <button (click)="clearClient()">x</button></span>
 <span class="app-version">SD Maintenance Toolkit {{v()}}</span>
 <span class="copyright">&copy; Sandstorm Design {{year()}}</span>

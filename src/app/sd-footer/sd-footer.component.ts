@@ -19,6 +19,10 @@ export class SdFooterComponent implements OnInit {
     });
   }
 
+  clearClient() {
+    this.clientService.clear();
+  }
+
   year() {
     var d = new Date();
     return d.getFullYear();

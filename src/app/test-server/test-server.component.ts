@@ -39,10 +39,10 @@ export class TestServerComponent implements OnInit {
     });
     this.clientService.data().subscribe((client: any) => {
 
-      if (client.ssh.host) {
+      if (client && client.ssh.host) {
         self.client = client;
       } else {
-        // this.router.navigate(['/clients']);
+        this.router.navigate(['/clients']);
       }
     });
   }

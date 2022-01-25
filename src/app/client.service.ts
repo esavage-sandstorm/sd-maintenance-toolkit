@@ -16,7 +16,6 @@ export class ClientService {
     if (cvalue){
       var client = JSON.parse(cvalue);
       this.update(client);
-      console.log('cvalue', cvalue);
     }
   }
 

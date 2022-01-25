@@ -1,3 +1,4 @@
-<h1>Test {{client.name}}</h1>
-<test-server *ngIf="client.name"></test-server>
-<test-cms *ngIf="client.name"></test-cms>
+<h1>Test</h1>
+<h2 *ngIf="client && client.name">{{client.name}}</h2>
+<test-server *ngIf="client && client.name"></test-server>
+<test-cms *ngIf="client && client.name"></test-cms>

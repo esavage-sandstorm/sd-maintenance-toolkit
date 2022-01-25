@@ -162,6 +162,7 @@ const sdNightmareModule = function(){
         console.error('Search failed:', error)
       });
   }
+
   mod.testForm = (data, cb) => {
     const url = data.url;
     const formId = data.id.replace('#','');
@@ -226,7 +227,6 @@ const sdNightmareModule = function(){
   }
 
   mod.promptCaptcha = () => {
-
     return function(nightmare) {
       return nightmare
       // tell the user to do the captcha.
@@ -255,7 +255,6 @@ const sdNightmareModule = function(){
           else {
             attempt++;
 
-            instructions.innerText = `Complete the captcha... ${attempt}`;
             if ( attempt < 1000 ) {
               setTimeout(verifyCaptcha, 1000);
             }
