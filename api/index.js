@@ -28,6 +28,9 @@ const sdClient = new sdClientModule();
 const drupal7Module = require('./modules/drupal7.module.js');
 const drupal7 = new drupal7Module();
 
+const drupal9Module = require('./modules/drupal9.module.js');
+const drupal9 = new drupal9Module();
+
 // just to test connection
 api.get('/api/hello', (req, res) => {
   res.json('hello');
@@ -166,6 +169,31 @@ api.post('/api/site/get-form', (req, res) => {
   } else {
     res.json('`url` is required.')
   }
+});
+
+api.post('/api/site/maintenance', (req, res) => {
+  const url = req.body.url;
+  const loginPage = req.body.loginPage;
+  const username = req.body.username;
+  const password = req.body.password;
+  const cms = req.body.cms.name;
+  const version = req.body.cms.version;
+  const v = version.split('.')[0];
+  const cb = function(data, err){
+    if(data){
+      res.json(data);
+    } else if (err) {
+      res.json(err);
+    }
+  }
+  if (cms == 'Drupal'){
+    if (v == '7') {
+      drupal7.maintenance(url, username, password, cb);
+    } else {
+      drupal9.maintenance(url, loginPage, username, password, cb);
+    }
+  }
+  // other cmseses
 });
 
 api.post('/api/site/drupal7-maintenance', (req, res) => {

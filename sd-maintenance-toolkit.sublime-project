@@ -2,16 +2,16 @@
 	"folders":
 	[
 		{
-			"name": "SD Maintenance Toolkit",
-			"path": "."
-		},
-		{
 			"name": "Angular App",
-			"path": "src/app"
+			"path": "src/app",
 		},
 		{
 			"name": "API",
-			"path": "api"
+			"path": "api",
+		},
+		{
+			"name": "SD Maintenance Toolkit",
+			"path": ".",
 		}
-	]
+	],
 }

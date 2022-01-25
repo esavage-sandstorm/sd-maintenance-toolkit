@@ -2,7 +2,7 @@
 const sdNightmareModule = require('./sdNightmare.module.js');
 const sdNightmare = new sdNightmareModule();
 
-const drupal7Module = function(){
+const drupal9Module = function(){
   const mod = this;
 
   // Nightmare login
@@ -12,14 +12,14 @@ const drupal7Module = function(){
       .goto(url)
       .wait(1000)
       .use(sdNightmare.dismissKlaro())
-      .wait('#edit-name')
-      .type('#edit-name', username)
-      .wait('#edit-pass')
-      .type('#edit-pass', password)
+      .wait('#user-login-form #edit-name')
+      .type('#user-login-form #edit-name', username)
+      .wait('#user-login-form #edit-pass')
+      .type('#user-login-form #edit-pass', password)
       .use(sdNightmare.promptCaptcha())
-      .wait('#edit-submit')
-      .click('#edit-submit')
-      .wait('body.logged-in');
+      .wait('#user-login-form [type="submit"]')
+      .click('#user-login-form [type="submit"]')
+      .wait('body.user-logged-in');
     };
   };
 
@@ -31,8 +31,8 @@ const drupal7Module = function(){
       .wait('.system-status-report')
       .evaluate((data) => {
         data.status = {};
-        Array.from(document.querySelectorAll('.system-status-report tr')).forEach(row => {
-          const titleTd = row.querySelectorAll('.status-title');
+        Array.from(document.querySelectorAll('.system-status-report__entry')).forEach(row => {
+          const titleTd = row.querySelectorAll('.system-status-report__status-title');
           let label = '';
           if (titleTd && titleTd[0]){
             label = titleTd[0].innerText.trim();
@@ -40,7 +40,7 @@ const drupal7Module = function(){
           var key = label.replace(/ +/g,'_');
           key = key.replace(/[^0-9a-zA-Z_]/gi, '');
           key = key.toLowerCase();
-          const valueTd = row.querySelectorAll('.status-value');
+          const valueTd = row.querySelectorAll('.system-status-report__entry__value');
           let value = '';
           if (valueTd && valueTd[0]){
             value = valueTd[0].innerText.trim();
@@ -52,7 +52,7 @@ const drupal7Module = function(){
             };
           }
         });
-        return data
+        return data;
       }, data)
     };
   };
@@ -62,33 +62,21 @@ const drupal7Module = function(){
     return function(nightmare) {
       return nightmare
       .goto(url + '/admin/reports/updates')
-      .wait('#edit-module-filter-show-security')
-      .click('#edit-module-filter-show-security')
-      .wait(3000) // wait for things to be hidden
+      .wait('table.update') // wait for results
       .evaluate((data) => {
         data.modules = [];
         if(!document.querySelector('.module-filter-no-results')){
           Array.from(document.querySelectorAll('table.update tr:not(.js-hide)')).forEach(row => {
-            if(row.querySelector('.project')){
-              let title = '';
-              let version = '';
-              const project = row.querySelector('.project').innerText;
-              if (row.querySelector('.project a')){
-                title = row.querySelector('.project a').innerText;
-                version = project.replace(title, '');
-              } else {
-                title = project.split(' ')[0];
-                version = project.split(' ')[0];
+              let mod = {};
+              mod.type = row.querySelector('.project-update__status').className.replace('project-update__status--','').replace('project-update__status','').trim();
+              mod.status = row.querySelector('.project-update__status').innerText.trim();
+              mod.title = row.querySelector('.project-update__title a').innerText.trim();
+              mod.currentVersion = row.querySelector('.project-update__title').innerText.replace(mod.title, '').trim();
+              if (row.querySelector('.project-update__version--recommended:not(.version-also-available)')){
+                  mod.recommendedVersion = row.querySelector('.project-update__version--recommended .project-update__version-details a').innerText.trim();
+                  mod.recommendedVersionDate = row.querySelector('.project-update__version--recommended .project-update__version-details .project-update__version-date').innerText.trim();
               }
-              if (row.querySelector('.version-recommended')) {
-                const recommended = row.querySelector('.version-recommended .version-details').innerText;
-                data.modules.push({
-                  title: title,
-                  current: version,
-                  recommended: recommended
-                });
-              }
-            }
+              data.modules.push(mod);
           });
         }
         return data;
@@ -100,26 +88,17 @@ const drupal7Module = function(){
   mod.PhpErrors = (url, data = {}) => {
     return function(nightmare) {
       return nightmare
-      .goto(url + '/admin/reports/dblog')
-      .wait('#edit-filters .fieldset-legend')
-      .click('#edit-filters .fieldset-legend')
-      .wait(1000)
-      .wait('#edit-type [value="php"]') // type = PHP
-      .select('#edit-type', 'php')
-      .wait('#edit-severity [value="3"]') // severity = Error
-      .select('#edit-severity', '3')
-      .click('#dblog-filter-form .form-submit')
-      // .wait('#admin-dblog tbody tr')
-      .wait(3000)
+      .goto(url + '/admin/reports/dblog?type%5B%5D=php&severity%5B%5D=3')
+      .wait('.admin-dblog')
       .evaluate((data, url) => {
         data.errors = [];
-        if (!document.querySelector('#admin-dblog .empty.message')){
-          Array.from(document.querySelectorAll('#admin-dblog tbody tr')).forEach( row => {
+        if (!document.querySelector('.views-table .view-empty') && document.querySelectorAll('.views-table tbody tr').length > 0){
+          Array.from(document.querySelectorAll('.views-table tbody tr')).forEach( row => {
             const errorMsg = {};
-            errorMsg.date = row.querySelector('td:nth-child(3)').innerText;
-            errorMsg.message = row.querySelector('td:nth-child(4)').innerText;
-            errorMsg.link = url + row.querySelector('td:nth-child(4) a').getAttribute('href');
-            errorMsg.user = row.querySelector('td:nth-child(5)').innerText;
+            errorMsg.date = row.querySelector('.views-field-timestamp').innerText.trim();
+            errorMsg.message = row.querySelector('.views-field-message').innerText.trim();
+            errorMsg.link = url + row.querySelector('.views-field-message a').getAttribute('href');
+            errorMsg.user = row.querySelector('.views-field-name').innerText.trim();
             data.errors.push(errorMsg);
           });
         }
@@ -134,6 +113,7 @@ const drupal7Module = function(){
    */
   mod.testLogin = (url, username, password, cb) => {
     const nightmare = sdNightmare.Nightmare({ show: true, executionTimeout: 100000, waitTimeout: 100000})
+
     nightmare
     .use(mod.login(url, username, password, cb))
     .wait(1000)
@@ -153,12 +133,13 @@ const drupal7Module = function(){
     });
   }
 
-  mod.maintenance = (url, username, password, cb) => {
+  mod.maintenance = (url, loginPage, username, password, cb) => {
     const nightmare = sdNightmare.Nightmare({ show: true, executionTimeout: 100000, waitTimeout: 100000})
     let data = {};
+    let loginURL = url + loginPage;
 
     nightmare
-    .use(mod.login(url, username, password))
+    .use(mod.login(loginURL, username, password))
     .use(mod.status(url))
     .then(data => {
       // get modules
@@ -178,4 +159,4 @@ const drupal7Module = function(){
   }
 }
 
-module.exports = drupal7Module;
+module.exports = drupal9Module;

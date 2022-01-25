@@ -234,6 +234,7 @@ const sdNightmareModule = function(){
         if (document.querySelectorAll('.g-recaptcha').length > 0) {
           window.sdNightmare = window.sdNightmare || {}
           let instructions = document.createElement("p");
+          instructions.className = ('sd-nightmare-captcha-instructions');
           let n = 20;
           var recaptcha = document.querySelector('.g-recaptcha');
           instructions.innerText = `Complete the captcha...`;
@@ -247,17 +248,19 @@ const sdNightmareModule = function(){
       .wait(function() {
         var attempt = 0;
         function verifyCaptcha() {
-          console.log('verify captcha');
-          if (window.sdNightmare.noCaptchaFound || !(document.querySelectorAll('.g-recaptcha').length > 0) || (grecaptcha && grecaptcha.getResponse().length !== 0)) {
+          let instructions = document.querySelector('.sd-nightmare-captcha-instructions');
+          if (window.sdNightmare && window.sdNightmare.noCaptchaFound || !(document.querySelectorAll('.g-recaptcha').length > 0) || (grecaptcha && grecaptcha.getResponse().length !== 0)) {
             return true;
           }
           else {
             attempt++;
 
+            instructions.innerText = `Complete the captcha... ${attempt}`;
             if ( attempt < 1000 ) {
-              setTimeout(verifyCaptcha,1000);
+              setTimeout(verifyCaptcha, 1000);
             }
             else {
+              instructions.innerText = `CAPTCHA Complete`;
               return true;
             }
           }
